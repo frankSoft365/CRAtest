@@ -1,16 +1,8 @@
-import { createBrowserRouter } from "react-router-dom";
-import Layout from "../pages/Layout";
-import Login from "../pages/Login";
+import { configureStore } from "@reduxjs/toolkit";
+import userReducer from './modules/user'
 
-const router = createBrowserRouter([
-    {
-        path: '/',
-        element: <Layout />
-    },
-    {
-        path: '/login',
-        element: <Login />
+export default configureStore({
+    reducer: {
+        user: userReducer
     }
-]);
-
-export default router;
+});

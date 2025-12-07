@@ -2,10 +2,14 @@ import { Form, Input, Flex, Button, Checkbox, Card } from "antd";
 import { LockOutlined, MobileOutlined } from '@ant-design/icons';
 import logo from '@/assets/OIP.webp';
 import './index.css'
+import { useDispatch } from "react-redux";
+import { fetchLogin } from "@/store/modules/user";
 
 export default function Login() {
+    const dispatch = useDispatch();
     const onFinish = values => {
         console.log('Received values of form: ', values);
+        // dispatch(fetchLogin(values));
     };
     return (
         <div className="login">
