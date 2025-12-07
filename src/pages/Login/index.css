@@ -1,0 +1,14 @@
+.login {
+    margin: 150px 0;
+}
+
+.login-container {
+    margin: 0 auto;
+    width: 360px;
+}
+
+.login-logo {
+    display: block;
+    width: 150px;
+    margin: 0 auto;
+}
