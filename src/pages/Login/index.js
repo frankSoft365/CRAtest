@@ -9,7 +9,7 @@ export default function Login() {
     const dispatch = useDispatch();
     const onFinish = values => {
         console.log('Received values of form: ', values);
-        // dispatch(fetchLogin(values));
+        dispatch(fetchLogin(values));
     };
     return (
         <div className="login">
@@ -23,19 +23,15 @@ export default function Login() {
                     validateTrigger='onBlur'
                 >
                     <Form.Item
-                        name="mobile"
+                        name="username"
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your mobile!'
-                            },
-                            {
-                                pattern: /^1[3-9]\d{9}$/,
-                                message: '请输入正确的手机号格式'
+                                message: 'Please input your username!'
                             }
                         ]}
                     >
-                        <Input prefix={<MobileOutlined />} placeholder="mobile" />
+                        <Input prefix={<MobileOutlined />} placeholder="username" />
                     </Form.Item>
                     <Form.Item
                         name="password"
@@ -47,14 +43,6 @@ export default function Login() {
                         ]}
                     >
                         <Input prefix={<LockOutlined />} type="password" placeholder="Password" />
-                    </Form.Item>
-                    <Form.Item>
-                        <Flex justify="space-between" align="center">
-                            <Form.Item name="remember" valuePropName="checked" noStyle>
-                                <Checkbox>Remember me</Checkbox>
-                            </Form.Item>
-                            <a href="">Forgot password</a>
-                        </Flex>
                     </Form.Item>
 
                     <Form.Item>

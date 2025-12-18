@@ -9,6 +9,8 @@ const userReducer = createSlice({
     reducers: {
         setToken(state, action) {
             state.token = action.payload;
+            console.log(state.token);
+
         }
     }
 });
@@ -17,7 +19,7 @@ const { setToken } = userReducer.actions;
 
 const fetchLogin = (loginForm) => {
     return async (dispatch) => {
-        const res = await request.post('/authorizations', loginForm);
+        const res = await request.post('http://localhost:8080/authorizations', loginForm);
         dispatch(setToken(res.data.token));
     };
 };
