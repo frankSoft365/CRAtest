@@ -5,6 +5,7 @@
 .login-container {
     margin: 0 auto;
     width: 360px;
+    justify-content: space-around;
 }
 
 .login-logo {

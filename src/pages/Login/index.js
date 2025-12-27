@@ -1,4 +1,4 @@
-import { Form, Input, Flex, Button, Checkbox, Card } from "antd";
+import { Form, Input, Button, Card } from "antd";
 import { LockOutlined, MobileOutlined } from '@ant-design/icons';
 import logo from '@/assets/OIP.webp';
 import './index.css'
