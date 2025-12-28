@@ -1,14 +1,14 @@
 html,
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-}
-
+body,
 #root {
     height: 100%;
+    width: 100%;
     margin: 0;
     padding: 0;
-    width: 100%;
+    overflow: auto;
+}
+
+.main-content {
+    min-height: 100vh;
+    overflow: auto;
 }

@@ -23,11 +23,23 @@ const empReducer = createSlice({
 
 const { setRows, setTotal, setQueryReturn } = empReducer.actions;
 
-const fetchList = () => {
+const toURLSearchParams = record => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(record)) {
+        params.append(key, value);
+    }
+    return params;
+};
+
+const defaultFetchList = (tableParams) => {
     return async (dispatch) => {
-        // const res = await request.get('http://localhost:8080/depts');
-        // console.log(res.data.data);
-        // dispatch(setList(res.data.data));
+        const params = toURLSearchParams(tableParams);
+        console.log(params.toString());
+
+        const res = await request.get(`http://localhost:8080/emps?${params.toString()}`);
+        console.log(res.data.data);
+        dispatch(setRows(res.data.data.rows));
+        dispatch(setTotal(res.data.data.total));
     };
 };
 
@@ -66,6 +78,6 @@ const getDeptNameById = (id) => {
 
 const reducer = empReducer.reducer;
 
-export { fetchList, deleteDeptById, addDept, updateDept, getDeptNameById };
+export { defaultFetchList, deleteDeptById, addDept, updateDept, getDeptNameById };
 
 export default reducer;

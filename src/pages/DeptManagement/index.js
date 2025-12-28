@@ -156,7 +156,7 @@ const DeptManagement = () => {
             >
                 <p>确认要删除该部门吗？</p>
             </Modal>
-            <Table columns={columns} dataSource={dataWithKey} />
+            <Table columns={columns} dataSource={dataWithKey} pagination={false} />
         </Card>
     );
 }

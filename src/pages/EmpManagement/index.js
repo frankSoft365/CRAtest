@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Input, Space, Table, Flex } from 'antd';
+import { Button, Card, Input, Space, Table, Flex, Pagination } from 'antd';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchList, deleteDeptById, addDept, updateDept, getDeptNameById } from '@/store/modules/dept';
+import { defaultFetchList, deleteDeptById, addDept, updateDept, getDeptNameById } from '@/store/modules/emp';
 import {
     ProFormDateRangePicker,
     ProFormText,
@@ -11,17 +11,25 @@ import {
 } from '@ant-design/pro-components';
 
 const EmpManagement = () => {
-
-    const { dataSource } = useSelector(state => state.emp);
+    const { rows, total } = useSelector(state => state.emp);
     const dispatch = useDispatch();
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
-            pageSize: 10,
+            pageSize: 2,
         },
     });
+
+    // 分页查询员工列表 默认 第一页 每页10条数据
+    useEffect(() => {
+        // Fetch data with current pagination
+        dispatch(defaultFetchList({
+            page: tableParams.pagination.current,
+            pageSize: tableParams.pagination.pageSize,
+        }));
+    }, [tableParams.pagination.current, tableParams.pagination.pageSize]);
 
     const onSelectChange = newSelectedRowKeys => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
@@ -51,18 +59,18 @@ const EmpManagement = () => {
         },
         {
             title: '所属部门',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'deptName',
+            key: 'deptName',
         },
         {
             title: '职位',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'job',
+            key: 'job',
         },
         {
             title: '入职日期',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'entryTime',
+            key: 'entryTime',
         },
         {
             title: '最后修改时间',
@@ -101,24 +109,36 @@ const EmpManagement = () => {
 
 
 
-    const handleTableChange = (pagination, filters, sorter) => {
-        // 前端向后端传递page, pageSize, name, gender, entry_date
+    const handleTableChange = (pagination) => {
+        setTableParams(prev => ({
+            ...prev,
+            pagination: {
+                ...prev.pagination,
+                page: pagination.current,
+                pageSize: pagination.pageSize,
+            }
+        }));
+    };
+
+    const handleQuery = (value) => {
+        console.log(value);
+
         setTableParams({
-            pagination,
-            filters,
-            sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
-            sortField: Array.isArray(sorter) ? undefined : sorter.field,
+            ...tableParams,
+            name: value?.name,
+            gender: value?.gender,
+            begin: value.contract?.createTime[0],
+            end: value.contract?.createTime[1]
         });
-        // `dataSource` is useless since `pageSize` changed
-        // if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-        //     setData([]);
-        // }
+        console.log(tableParams);
+
+        // 条件分页查询
     };
 
     return (
         <Card>
             <p>员工管理</p>
-            <QueryFilter defaultCollapsed={false} split>
+            <QueryFilter defaultCollapsed={false} split span={6.5} onFinish={handleQuery}>
                 <ProFormText name="name" label="姓名" />
                 <ProFormSelect
                     width="xs"
@@ -179,8 +199,14 @@ const EmpManagement = () => {
             <Table
                 rowSelection={rowSelection}
                 columns={columns}
-                dataSource={dataSource}
-                pagination={tableParams.pagination}
+                dataSource={rows}
+                pagination={{
+                    ...tableParams.pagination,
+                    total: total,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: total => `Total ${total} items`,
+                }}
                 onChange={handleTableChange}
             />
         </Card>

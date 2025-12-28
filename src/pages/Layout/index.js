@@ -57,6 +57,7 @@ const contentStyle = {
     lineHeight: '120px',
     color: '#fff',
     backgroundColor: '#0958d9',
+    overflow: 'auto'
 };
 const siderStyle = {
     textAlign: 'center',
