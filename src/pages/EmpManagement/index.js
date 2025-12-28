@@ -1,90 +1,66 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Input, Space, Table, Modal } from 'antd';
+import { Button, Card, Input, Space, Table, Flex } from 'antd';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchList, deleteDeptById, addDept, updateDept, getDeptNameById } from '@/store/modules/dept';
-// import {
-//     ProFormDateRangePicker,
-//     ProFormText,
-//     QueryFilter,
-//     ProFormSelect
-// } from '@ant-design/pro-components';
+import {
+    ProFormDateRangePicker,
+    ProFormText,
+    QueryFilter,
+    ProFormSelect
+} from '@ant-design/pro-components';
 
 const EmpManagement = () => {
-    const { list, queryReturn } = useSelector(state => state.dept);
-    // 新增部门确认框开合状态
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    // 修改部门确认框开合状态
-    const [isModalOpen2, setIsModalOpen2] = useState(false);
-    // 删除部门确认框开合状态
-    const [isModalOpen3, setIsModalOpen3] = useState(false);
-    const [deptName, setDeptName] = useState('');
-    const [selectedId, setSelectedId] = useState(null);
+
+    const { dataSource } = useSelector(state => state.emp);
     const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(fetchList());
-    }, [dispatch]);
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-    useEffect(() => {
-        if (queryReturn !== null) {
-            setDeptName(queryReturn.name);
-        }
-    }, [queryReturn]);
+    const [tableParams, setTableParams] = useState({
+        pagination: {
+            current: 1,
+            pageSize: 10,
+        },
+    });
 
-    // 新增部门的确认框
-    const showModal = () => {
-        setIsModalOpen(true);
+    const onSelectChange = newSelectedRowKeys => {
+        console.log('selectedRowKeys changed: ', newSelectedRowKeys);
+        setSelectedRowKeys(newSelectedRowKeys);
     };
-    const handleOk = () => {
-        setIsModalOpen(false);
-        console.log('deptName : ' + deptName);
-        dispatch(addDept({ name: deptName }));
-        setDeptName('');
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: onSelectChange,
     };
-    const handleCancel = () => {
-        setIsModalOpen(false);
-        setDeptName('');
-    };
-
-    // 更改部门名称的确认框
-    const showModal2 = () => {
-        setIsModalOpen2(true);
-    }
-    const handleOk2 = () => {
-        setIsModalOpen2(false);
-        console.log('changedId : ' + selectedId + ' deptName : ' + deptName);
-        dispatch(updateDept({ id: selectedId, name: deptName }));
-        setDeptName('');
-        setSelectedId(null);
-    };
-    const handleCancel2 = () => {
-        setIsModalOpen2(false);
-        setDeptName('');
-        setSelectedId(null);
-    };
-
-    // 删除部门确认框
-    const showModal3 = () => {
-        setIsModalOpen3(true);
-    };
-    const handleOk3 = () => {
-        setIsModalOpen3(false);
-        dispatch(deleteDeptById(selectedId));
-        setSelectedId(null);
-    };
-    const handleCancel3 = () => {
-        setIsModalOpen3(false);
-        setSelectedId(null);
-    };
+    const hasSelected = selectedRowKeys.length > 0;
 
     const columns = [
         {
-            title: '序号',
-            key: 'index',
-            render: (text, record, index) => index + 1,
+            title: '姓名',
+            dataIndex: 'name',
+            key: 'name',
         },
         {
-            title: '部门名称',
+            title: '性别',
+            dataIndex: 'gender',
+            key: 'gender',
+        },
+        {
+            title: '头像',
+            dataIndex: 'image',
+            key: 'image',
+        },
+        {
+            title: '所属部门',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: '职位',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: '入职日期',
             dataIndex: 'name',
             key: 'name',
         },
@@ -101,9 +77,9 @@ const EmpManagement = () => {
                 <Space size="middle">
                     <span
                         onClick={() => {
-                            dispatch(getDeptNameById(record.id));
-                            showModal2();
-                            setSelectedId(record.id);
+                            // dispatch(getDeptNameById(record.id));
+                            // showModal2();
+                            // setSelectedId(record.id);
                         }}
                         style={{ color: 'blue', cursor: 'pointer' }}
                     >
@@ -111,8 +87,8 @@ const EmpManagement = () => {
                     </span>
                     <span
                         onClick={() => {
-                            showModal3();
-                            setSelectedId(record.id);
+                            // showModal3();
+                            // setSelectedId(record.id);
                         }}
                         style={{ color: 'red', cursor: 'pointer' }}
                     >
@@ -123,18 +99,26 @@ const EmpManagement = () => {
         },
     ];
 
-    // Ensure each row has a unique key (use id if available, otherwise index)
-    const dataWithKey = list && Array.isArray(list)
-        ? list.map((item, idx) => ({
-            ...item,
-            key: item.id !== undefined ? item.id : idx
-        }))
-        : [];
+
+
+    const handleTableChange = (pagination, filters, sorter) => {
+        // 前端向后端传递page, pageSize, name, gender, entry_date
+        setTableParams({
+            pagination,
+            filters,
+            sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
+            sortField: Array.isArray(sorter) ? undefined : sorter.field,
+        });
+        // `dataSource` is useless since `pageSize` changed
+        // if (pagination.pageSize !== tableParams.pagination?.pageSize) {
+        //     setData([]);
+        // }
+    };
 
     return (
         <Card>
             <p>员工管理</p>
-            {/* <QueryFilter split>
+            <QueryFilter defaultCollapsed={false} split>
                 <ProFormText name="name" label="姓名" />
                 <ProFormSelect
                     width="xs"
@@ -156,8 +140,9 @@ const EmpManagement = () => {
                     name={['contract', 'createTime']}
                     label="入职时间"
                 />
-            </QueryFilter> */}
-            <Modal
+            </QueryFilter>
+
+            {/* <Modal
                 title="新增部门"
                 closable={{ 'aria-label': 'Custom Close Button' }}
                 open={isModalOpen}
@@ -183,8 +168,21 @@ const EmpManagement = () => {
                 onCancel={handleCancel3}
             >
                 <p>确认要删除该部门吗？</p>
-            </Modal>
-            <Table columns={columns} dataSource={dataWithKey} />
+            </Modal> */}
+            <Flex align="center" gap="middle">
+                <Button>新增员工</Button>
+                <Button type="primary" disabled={!hasSelected}>
+                    批量删除
+                </Button>
+                {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
+            </Flex>
+            <Table
+                rowSelection={rowSelection}
+                columns={columns}
+                dataSource={dataSource}
+                pagination={tableParams.pagination}
+                onChange={handleTableChange}
+            />
         </Card>
     );
 }

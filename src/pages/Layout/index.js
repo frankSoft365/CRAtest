@@ -82,7 +82,7 @@ const LayoutPage = () => {
     const location = useLocation();
     // Find the menu key for the current path
     const currentPath = location.pathname;
-    const selectedKey = pathToKey[currentPath] ? [pathToKey[currentPath]] : ['1'];
+    const selectedKey = pathToKey[currentPath] ? [pathToKey[currentPath]] : [];
 
     return (
         <Layout style={layoutStyle}>
