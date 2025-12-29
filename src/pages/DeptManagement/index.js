@@ -127,7 +127,7 @@ const DeptManagement = () => {
 
     return (
         <Card>
-            <p>部门管理</p>
+            <h2>部门管理</h2>
             <Button onClick={showModal}>新增部门</Button>
             <Modal
                 title="新增部门"

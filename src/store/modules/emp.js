@@ -34,8 +34,7 @@ const toURLSearchParams = record => {
 const defaultFetchList = (tableParams) => {
     return async (dispatch) => {
         const params = toURLSearchParams(tableParams);
-        console.log(params.toString());
-
+        console.log('页面传递的参数是' + params.toString());
         const res = await request.get(`http://localhost:8080/emps?${params.toString()}`);
         console.log(res.data.data);
         dispatch(setRows(res.data.data.rows));

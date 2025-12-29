@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Input, Space, Table, Flex, Pagination } from 'antd';
+import { Button, Card, Input, Space, Table, Flex } from 'antd';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import { defaultFetchList, deleteDeptById, addDept, updateDept, getDeptNameById } from '@/store/modules/emp';
@@ -18,18 +18,56 @@ const EmpManagement = () => {
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
-            pageSize: 2,
+            pageSize: 10,
         },
     });
+
+    // 职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师
+    const job = {
+        1: '班主任',
+        2: '讲师',
+        3: '学工主管',
+        4: '教研主管',
+        5: '咨询师'
+    }
+
+    const isNonNullable = val => {
+        return val !== undefined && val !== null;
+    };
+
+    const getParams = (params) => {
+        const { pagination, name, gender, begin, end } = params;
+        const result = {};
+        result.page = pagination.current;
+        result.pageSize = pagination.pageSize;
+        if (isNonNullable(name)) {
+            result.name = name;
+        }
+        if (isNonNullable(gender)) {
+            result.gender = gender;
+        }
+        if (isNonNullable(begin)) {
+            result.begin = begin;
+        }
+        if (isNonNullable(end)) {
+            result.end = end;
+        }
+        return result;
+    }
 
     // 分页查询员工列表 默认 第一页 每页10条数据
     useEffect(() => {
         // Fetch data with current pagination
-        dispatch(defaultFetchList({
-            page: tableParams.pagination.current,
-            pageSize: tableParams.pagination.pageSize,
-        }));
-    }, [tableParams.pagination.current, tableParams.pagination.pageSize]);
+
+        dispatch(defaultFetchList(getParams(tableParams)));
+    }, [
+        tableParams.pagination.current,
+        tableParams.pagination.pageSize,
+        tableParams?.name,
+        tableParams?.gender,
+        tableParams?.begin,
+        tableParams?.end
+    ]);
 
     const onSelectChange = newSelectedRowKeys => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
@@ -51,6 +89,7 @@ const EmpManagement = () => {
             title: '性别',
             dataIndex: 'gender',
             key: 'gender',
+            render: (_, record) => record.gender === 1 ? '男' : '女'
         },
         {
             title: '头像',
@@ -66,6 +105,7 @@ const EmpManagement = () => {
             title: '职位',
             dataIndex: 'job',
             key: 'job',
+            render: (_, record) => job[record.job]
         },
         {
             title: '入职日期',
@@ -107,22 +147,22 @@ const EmpManagement = () => {
         },
     ];
 
-
-
     const handleTableChange = (pagination) => {
+        console.log(`当前分页数据：当前页：${pagination.current}，每页数据数：${pagination.pageSize}`);
         setTableParams(prev => ({
             ...prev,
             pagination: {
-                ...prev.pagination,
-                page: pagination.current,
+                current: pagination.current,
                 pageSize: pagination.pageSize,
             }
         }));
     };
 
     const handleQuery = (value) => {
-        console.log(value);
-
+        console.log(`当前选择参数：name : ${value?.name},
+             gender : ${value?.gender}, 
+             begin : ${value.contract?.createTime[0]}, 
+             end : ${value.contract?.createTime[1]}`);
         setTableParams({
             ...tableParams,
             name: value?.name,
@@ -130,14 +170,11 @@ const EmpManagement = () => {
             begin: value.contract?.createTime[0],
             end: value.contract?.createTime[1]
         });
-        console.log(tableParams);
-
-        // 条件分页查询
     };
 
     return (
         <Card>
-            <p>员工管理</p>
+            <h2>员工管理</h2>
             <QueryFilter defaultCollapsed={false} split span={6.5} onFinish={handleQuery}>
                 <ProFormText name="name" label="姓名" />
                 <ProFormSelect
@@ -205,7 +242,7 @@ const EmpManagement = () => {
                     total: total,
                     showSizeChanger: true,
                     showQuickJumper: true,
-                    showTotal: total => `Total ${total} items`,
+                    showTotal: total => `共${total}条数据`,
                 }}
                 onChange={handleTableChange}
             />
