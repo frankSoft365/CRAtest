@@ -43,9 +43,9 @@ const { Header, Footer, Sider, Content } = Layout;
 const headerStyle = {
     textAlign: 'center',
     color: '#fff',
-    height: 96,
-    paddingInline: 72,
-    lineHeight: '96px',
+    height: 64,
+    paddingInline: 48,
+    lineHeight: '64px',
     backgroundColor: '#4096ff',
     display: 'flex',
     flexDirection: 'row',
