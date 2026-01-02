@@ -50,11 +50,11 @@ const deleteDeptById = (id) => {
     }
 }
 
-const addDept = (dept) => {
+const addEmp = (emp, tableParams) => {
     return async (dispatch) => {
-        // await request.post('http://localhost:8080/depts', dept);
-        // console.log('已发送add请求');
-        // dispatch(fetchList());
+        await request.post('http://localhost:8080/emps', emp);
+        console.log('已发送add请求');
+        dispatch(defaultFetchList(tableParams));
     }
 }
 
@@ -77,6 +77,6 @@ const getDeptNameById = (id) => {
 
 const reducer = empReducer.reducer;
 
-export { defaultFetchList, deleteDeptById, addDept, updateDept, getDeptNameById };
+export { defaultFetchList, deleteDeptById, addEmp, updateDept, getDeptNameById };
 
 export default reducer;

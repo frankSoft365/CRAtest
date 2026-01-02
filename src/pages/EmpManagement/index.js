@@ -3,7 +3,7 @@ import { Button, Card, Input, Space, Table, Flex, Form, Modal, InputNumber, Date
 import dayjs from 'dayjs';
 import { LoadingOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { defaultFetchList, deleteDeptById, addDept, updateDept, getDeptNameById } from '@/store/modules/emp';
+import { defaultFetchList, deleteDeptById, addEmp, updateDept, getDeptNameById } from '@/store/modules/emp';
 import {
     ProFormDateRangePicker,
     ProFormText,
@@ -54,7 +54,7 @@ const EmpManagement = () => {
         if (isNonNullable(params.entryTime)) {
             formParams.entryTime = params.entryTime.format('YYYY-MM-DD');
         }
-        // 头像的url封装
+        // 头像的url封装 字段名image
         if (isNonNullable(params.empExprs)) {
             const newEmpExprs = params.empExprs.map(item => ({
                 ...item,
@@ -62,7 +62,9 @@ const EmpManagement = () => {
                 end: item.date[1].format('YYYY-MM-DD'),
             }));
             const resultEmpExprs = newEmpExprs.map(({ date, ...rest }) => rest)
-            formParams.empExprs = resultEmpExprs;
+            formParams.exprList = resultEmpExprs;
+        } else {
+            formParams.exprList = [];
         }
         return formParams;
     };
@@ -70,6 +72,7 @@ const EmpManagement = () => {
         const newValues = getFormParams(values);
         console.log('新增员工的信息是：', newValues);
         setFormValues(newValues);
+        dispatch(addEmp(newValues, getParams(tableParams)));
         setOpen(false);
     };
     // ------------------------------------------------------------
