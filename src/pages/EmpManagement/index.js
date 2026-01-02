@@ -15,36 +15,13 @@ const EmpManagement = () => {
     const { rows, total } = useSelector(state => state.emp);
     const dispatch = useDispatch();
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    // 初始的表单参数
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
             pageSize: 10,
         },
     });
-    // 新增员工
-    const [form] = Form.useForm();
-    const [formValues, setFormValues] = useState();
-    const [open, setOpen] = useState(false);
-    const onCreate = values => {
-        // Transform empExprs date to begin/end
-        const newEmpExprs = values.empExprs?.map(item => ({
-            ...item,
-            begin: item.date?.[0].format('YYYY-MM-DD'),
-            end: item.date?.[1].format('YYYY-MM-DD'),
-        })) || [];
-        const newValues = {
-            ...values,
-            empExprs: newEmpExprs.map(({ date, ...rest }) => rest), // remove 'date' key
-        };
-        console.log('新增员工的信息是：', newValues);
-        setFormValues(newValues);
-        setOpen(false);
-    };
-
-    // 头像上传
-    const [loading, setLoading] = useState(false);
-    const [imageUrl, setImageUrl] = useState();
-
     // 职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师
     const job = {
         1: '班主任',
@@ -53,12 +30,60 @@ const EmpManagement = () => {
         4: '教研主管',
         5: '咨询师'
     }
+    // ------------------------------------------------------------
+
+    // 新增员工
+    const [form] = Form.useForm();
+    const [formValues, setFormValues] = useState();
+    const [open, setOpen] = useState(false);
+    const getFormParams = (params) => {  // 封装新增员工的参数
+        const formParams = {};
+        formParams.username = params.username;
+        formParams.name = params.name;
+        formParams.gender = params.gender;
+        formParams.phone = params.phone;
+        if (isNonNullable(params.job)) {
+            formParams.job = params.job;
+        }
+        if (isNonNullable(params.salary)) {
+            formParams.salary = params.salary;
+        }
+        if (isNonNullable(params.deptId)) {
+            formParams.deptId = params.deptId;
+        }
+        if (isNonNullable(params.entryTime)) {
+            formParams.entryTime = params.entryTime.format('YYYY-MM-DD');
+        }
+        // 头像的url封装
+        if (isNonNullable(params.empExprs)) {
+            const newEmpExprs = params.empExprs.map(item => ({
+                ...item,
+                begin: item.date[0].format('YYYY-MM-DD'),
+                end: item.date[1].format('YYYY-MM-DD'),
+            }));
+            const resultEmpExprs = newEmpExprs.map(({ date, ...rest }) => rest)
+            formParams.empExprs = resultEmpExprs;
+        }
+        return formParams;
+    };
+    const onCreate = values => {
+        const newValues = getFormParams(values);
+        console.log('新增员工的信息是：', newValues);
+        setFormValues(newValues);
+        setOpen(false);
+    };
+    // ------------------------------------------------------------
+
+    // 头像上传
+    const [loading, setLoading] = useState(false);
+    const [imageUrl, setImageUrl] = useState();
+    // ------------------------------------------------------------
 
     // 判断参数是否为null undefined
     const isNonNullable = val => {
         return val !== undefined && val !== null;
     };
-
+    // 通过条件、分页参数封装的传给后端的数据
     const getParams = (params) => {
         const { pagination, name, gender, begin, end } = params;
         const result = {};
@@ -78,11 +103,8 @@ const EmpManagement = () => {
         }
         return result;
     }
-
     // 分页查询员工列表 默认 第一页 每页10条数据
     useEffect(() => {
-        // Fetch data with current pagination
-
         dispatch(defaultFetchList(getParams(tableParams)));
     }, [
         tableParams.pagination.current,
@@ -92,6 +114,7 @@ const EmpManagement = () => {
         tableParams?.begin,
         tableParams?.end
     ]);
+    // ------------------------------------------------------------
 
     const onSelectChange = newSelectedRowKeys => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
@@ -171,6 +194,7 @@ const EmpManagement = () => {
             ),
         },
     ];
+    // ------------------------------------------------------------
 
     // 分页
     const handleTableChange = (pagination) => {
@@ -183,6 +207,7 @@ const EmpManagement = () => {
             }
         }));
     };
+    // ------------------------------------------------------------
 
     // 条件查询
     const handleQuery = (value) => {
@@ -200,7 +225,6 @@ const EmpManagement = () => {
             end: value.contract?.createTime[1]
         });
     };
-
     // 重置后，查询条件都没有了，即是普通的分页查询，页数都是默认值
     const handleReset = () => {
         setTableParams({
@@ -209,12 +233,8 @@ const EmpManagement = () => {
                 pageSize: 10,
             },
         });
-    }
-
-    // 新增员工 出现表单 填写表单确认后 新增 再次获取列表
-    const handleAddEmp = () => {
-
-    }
+    };
+    // ------------------------------------------------------------
 
     // 表单中的头像上传
     const getBase64 = (img, callback) => {
@@ -252,14 +272,16 @@ const EmpManagement = () => {
             });
         }
     };
+    // ------------------------------------------------------------
 
     return (
         <Card>
             <h2>员工管理</h2>
-            <pre>{JSON.stringify(formValues, null, 2)}</pre>
+            {/* 条件查询的条件筛选面板 */}
             <QueryFilter defaultCollapsed={false} split span={6.5} onFinish={handleQuery} onReset={handleReset}>
-                <ProFormText name="name" label="姓名" />
+                <ProFormText name="name" label="姓名" placeholder='请输入员工姓名' />
                 <ProFormSelect
+                    placeholder='请选择'
                     width="xs"
                     options={[
                         {
@@ -275,6 +297,7 @@ const EmpManagement = () => {
                     label="性别"
                 />
                 <ProFormDateRangePicker
+                    placeholder={['开始日期', '结束日期']}
                     width="md"
                     name={['contract', 'createTime']}
                     label="入职时间"
@@ -306,7 +329,7 @@ const EmpManagement = () => {
                 </Button>
                 {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
             </Flex>
-
+            {/* 新增员工的登记面板 */}
             <Modal
                 open={open}
                 title="新增员工"
@@ -334,26 +357,26 @@ const EmpManagement = () => {
                     label="用户名"
                     rules={[{ required: true, message: '请输入用户名！' }]}
                 >
-                    <Input />
+                    <Input placeholder='请输入员工用户名，2-20个字' />
                 </Form.Item>
                 <Form.Item
                     label="姓名"
                     name="name"
                     rules={[{ required: true, message: '请输入姓名!' }]}>
-                    <Input />
+                    <Input placeholder='请输入员工姓名，2-10个字' />
                 </Form.Item>
                 <Form.Item
                     label="性别"
                     name="gender"
                     rules={[{ required: true, message: '请输入性别!' }]}
                 >
-                    <Select options={[{ label: '男', value: '1' }, { label: '女', value: '2' }]} />
+                    <Select placeholder='请选择' options={[{ label: '男', value: '1' }, { label: '女', value: '2' }]} />
                 </Form.Item>
                 <Form.Item
                     label="手机号"
                     name="phone"
                     rules={[{ required: true, message: '请输入手机号!' }]}>
-                    <Input />
+                    <Input placeholder='请输入员工手机号' />
                 </Form.Item>
                 {/* 职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师 */}
                 <Form.Item
@@ -361,7 +384,7 @@ const EmpManagement = () => {
                     name="job"
                     rules={[]}
                 >
-                    <Select options={[
+                    <Select placeholder='请选择' options={[
                         { label: '班主任', value: '1' },
                         { label: '讲师', value: '2' },
                         { label: '学工主管', value: '3' },
@@ -375,14 +398,14 @@ const EmpManagement = () => {
                     name="salary"
                     rules={[]}
                 >
-                    <InputNumber style={{ width: '100%' }} />
+                    <InputNumber placeholder='请输入员工薪资' style={{ width: '100%' }} />
                 </Form.Item>
                 <Form.Item
                     label="所属部门"
                     name="deptId"
                     rules={[]}
                 >
-                    <Select options={[
+                    <Select placeholder='请选择' options={[
                         { label: '学工部', value: '1' },
                         { label: '教研部', value: '2' },
                         { label: '咨询部', value: '3' },
@@ -398,10 +421,10 @@ const EmpManagement = () => {
                     name="entryTime"
                     rules={[]}
                 >
-                    <DatePicker />
+                    <DatePicker placeholder='请选择入职日期' />
                 </Form.Item>
-                <Form.Item>
-                    <Card size='small' style={{ width: 250, height: 100, fontSize: 10 }}>
+                <Form.Item label='头像'>
+                    <Card size='small' style={{ width: 250, height: 125, fontSize: 12 }}>
                         <p>图片大小不超过2M</p>
                         <p>只能上传JPG、PNG图片</p>
                         <p>建议上传200*200或300*300尺寸的图片</p>
@@ -434,6 +457,7 @@ const EmpManagement = () => {
                                         rules={[{ required: true, message: '填写公司！' }]}
                                     >
                                         <DatePicker.RangePicker
+                                            placeholder={['开始日期', '结束日期']}
                                             width="md"
                                         />
                                     </Form.Item>
@@ -465,6 +489,7 @@ const EmpManagement = () => {
                     )}
                 </Form.List>
             </Modal>
+            {/* 展示数据列表的表 */}
             <Table
                 rowSelection={rowSelection}
                 columns={columns}
