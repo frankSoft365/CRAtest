@@ -343,154 +343,167 @@ const EmpManagement = () => {
                 destroyOnHidden
                 modalRender={dom => (
                     <Form
-                        layout="horisontal"
+                        layout="horizontal"
                         form={form}
                         name="form_in_modal"
                         initialValues={{ modifier: 'public' }}
                         clearOnDestroy
                         onFinish={values => onCreate(values)}
                         validateTrigger='onBlur'
+                        style={{ width: 800 }}
                     >
                         {dom}
                     </Form>
                 )}
             >
-                <Form.Item
-                    name="username"
-                    label="用户名"
-                    rules={[{ required: true, message: '请输入用户名！' }]}
-                >
-                    <Input placeholder='请输入员工用户名，2-20个字' />
+                <Flex wrap gap={'small'}>
+                    <Form.Item
+                        name="username"
+                        label="用户名"
+                        rules={[{ required: true, message: '请输入用户名！' }]}
+                    >
+                        <Input placeholder='请输入员工用户名，2-20个字' maxLength={20} style={{ width: 250 }} />
+                    </Form.Item>
+                    <Form.Item
+                        label="姓名"
+                        name="name"
+                        rules={[{ required: true, message: '请输入姓名!' }]}>
+                        <Input placeholder='请输入员工姓名，2-10个字' maxLength={10} style={{ width: 250 }} />
+                    </Form.Item>
+                    <Form.Item
+                        label="性别"
+                        name="gender"
+                        rules={[{ required: true, message: '请输入性别!' }]}
+                    >
+                        <Select placeholder='请选择' options={[{ label: '男', value: '1' }, { label: '女', value: '2' }]} style={{ width: 100 }} />
+                    </Form.Item>
+                    <Form.Item
+                        label="手机号"
+                        name="phone"
+                        rules={[
+                            { required: true, message: '请输入手机号!' },
+                            { pattern: /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/, message: '请输入正确的手机号格式！' }
+                        ]}>
+                        <Input placeholder='请输入员工手机号' style={{ width: 150 }} />
+                    </Form.Item>
+                    {/* 职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师 */}
+                    <Form.Item
+                        label="职位"
+                        name="job"
+                        rules={[]}
+                    >
+                        <Select style={{ width: 100 }} placeholder='请选择' options={[
+                            { label: '班主任', value: '1' },
+                            { label: '讲师', value: '2' },
+                            { label: '学工主管', value: '3' },
+                            { label: '教研主管', value: '4' },
+                            { label: '咨询师', value: '5' }
+                        ]}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        label="薪资"
+                        name="salary"
+                        rules={[]}
+                    >
+                        <InputNumber placeholder='请输入员工薪资' style={{ width: 200 }} />
+                    </Form.Item>
+                    <Form.Item
+                        label="所属部门"
+                        name="deptId"
+                        rules={[]}
+                    >
+                        <Select style={{ width: 100 }} placeholder='请选择' options={[
+                            { label: '学工部', value: '1' },
+                            { label: '教研部', value: '2' },
+                            { label: '咨询部', value: '3' },
+                            { label: '就业部', value: '4' },
+                            { label: '人事部', value: '5' },
+                            { label: '行政部', value: '6' }
+                        ]}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="入职日期"
+                        name="entryTime"
+                        rules={[]}
+                    >
+                        <DatePicker placeholder='请选择入职日期' style={{ width: 150 }} />
+                    </Form.Item>
+                </Flex>
+
+
+                <Form.Item label='头像' layout='horizontal'>
+                    <Flex gap={'small'}>
+                        {/* <Upload
+                            name="avatar"
+                            listType="picture-card"
+                            className="avatar-uploader"
+                            showUploadList={false}
+                            action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+                            beforeUpload={beforeUpload}
+                            onChange={handleChange}
+                        >
+                            {imageUrl ? (
+                                <img draggable={false} src={imageUrl} alt="avatar" style={{ width: '100%' }} />
+                            ) : (
+                                uploadButton
+                            )}
+                        </Upload> */}
+                        <Card size='small' style={{ width: 250, height: 125, fontSize: 12 }}>
+                            <p>图片大小不超过2M</p>
+                            <p>只能上传JPG、PNG图片</p>
+                            <p>建议上传200*200或300*300尺寸的图片</p>
+                        </Card>
+                    </Flex>
                 </Form.Item>
-                <Form.Item
-                    label="姓名"
-                    name="name"
-                    rules={[{ required: true, message: '请输入姓名!' }]}>
-                    <Input placeholder='请输入员工姓名，2-10个字' />
-                </Form.Item>
-                <Form.Item
-                    label="性别"
-                    name="gender"
-                    rules={[{ required: true, message: '请输入性别!' }]}
-                >
-                    <Select placeholder='请选择' options={[{ label: '男', value: '1' }, { label: '女', value: '2' }]} />
-                </Form.Item>
-                <Form.Item
-                    label="手机号"
-                    name="phone"
-                    rules={[{ required: true, message: '请输入手机号!' }]}>
-                    <Input placeholder='请输入员工手机号' />
-                </Form.Item>
-                {/* 职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师 */}
-                <Form.Item
-                    label="职位"
-                    name="job"
-                    rules={[]}
-                >
-                    <Select placeholder='请选择' options={[
-                        { label: '班主任', value: '1' },
-                        { label: '讲师', value: '2' },
-                        { label: '学工主管', value: '3' },
-                        { label: '教研主管', value: '4' },
-                        { label: '咨询师', value: '5' }
-                    ]}
-                    />
-                </Form.Item>
-                <Form.Item
-                    label="薪资"
-                    name="salary"
-                    rules={[]}
-                >
-                    <InputNumber placeholder='请输入员工薪资' style={{ width: '100%' }} />
-                </Form.Item>
-                <Form.Item
-                    label="所属部门"
-                    name="deptId"
-                    rules={[]}
-                >
-                    <Select placeholder='请选择' options={[
-                        { label: '学工部', value: '1' },
-                        { label: '教研部', value: '2' },
-                        { label: '咨询部', value: '3' },
-                        { label: '就业部', value: '4' },
-                        { label: '人事部', value: '5' },
-                        { label: '行政部', value: '6' }
-                    ]}
-                    />
+                <Form.Item label='工作经历'>
+                    <Form.List name="empExprs" label='工作经历'>
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, ...restField }) => (
+                                    <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                                        <Form.Item
+                                            {...restField}
+                                            label="时间"
+                                            name={[name, 'date']}
+                                            rules={[{ required: true, message: '填写公司！' }]}
+                                        >
+                                            <DatePicker.RangePicker
+                                                placeholder={['开始日期', '结束日期']}
+                                                width="md"
+                                            />
+                                        </Form.Item>
+                                        <Form.Item
+                                            {...restField}
+                                            label="公司"
+                                            name={[name, 'company']}
+                                            rules={[{ required: true, message: '填写公司！' }]}
+                                        >
+                                            <Input placeholder="请输入公司的名字" />
+                                        </Form.Item>
+                                        <Form.Item
+                                            {...restField}
+                                            label="职位"
+                                            name={[name, 'job']}
+                                            rules={[{ required: true, message: '填写职位！' }]}
+                                        >
+                                            <Input placeholder="请输入职位" />
+                                        </Form.Item>
+                                        <MinusCircleOutlined onClick={() => remove(name)} />
+                                    </Space>
+                                ))}
+                                <Form.Item>
+                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                        添加工作经历
+                                    </Button>
+                                </Form.Item>
+                            </>
+                        )}
+                    </Form.List>
                 </Form.Item>
 
-                <Form.Item
-                    label="入职日期"
-                    name="entryTime"
-                    rules={[]}
-                >
-                    <DatePicker placeholder='请选择入职日期' />
-                </Form.Item>
-                <Form.Item label='头像'>
-                    <Card size='small' style={{ width: 250, height: 125, fontSize: 12 }}>
-                        <p>图片大小不超过2M</p>
-                        <p>只能上传JPG、PNG图片</p>
-                        <p>建议上传200*200或300*300尺寸的图片</p>
-                    </Card>
-                    {/* <Upload
-                        name="avatar"
-                        listType="picture-card"
-                        className="avatar-uploader"
-                        showUploadList={false}
-                        action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
-                        beforeUpload={beforeUpload}
-                        onChange={handleChange}
-                    >
-                        {imageUrl ? (
-                            <img draggable={false} src={imageUrl} alt="avatar" style={{ width: '100%' }} />
-                        ) : (
-                            uploadButton
-                        )}
-                    </Upload> */}
-                </Form.Item>
-                <Form.List name="empExprs">
-                    {(fields, { add, remove }) => (
-                        <>
-                            {fields.map(({ key, name, ...restField }) => (
-                                <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                                    <Form.Item
-                                        {...restField}
-                                        label="时间"
-                                        name={[name, 'date']}
-                                        rules={[{ required: true, message: '填写公司！' }]}
-                                    >
-                                        <DatePicker.RangePicker
-                                            placeholder={['开始日期', '结束日期']}
-                                            width="md"
-                                        />
-                                    </Form.Item>
-                                    <Form.Item
-                                        {...restField}
-                                        label="公司"
-                                        name={[name, 'company']}
-                                        rules={[{ required: true, message: '填写公司！' }]}
-                                    >
-                                        <Input placeholder="请输入公司的名字" />
-                                    </Form.Item>
-                                    <Form.Item
-                                        {...restField}
-                                        label="职位"
-                                        name={[name, 'job']}
-                                        rules={[{ required: true, message: '填写职位！' }]}
-                                    >
-                                        <Input placeholder="请输入职位" />
-                                    </Form.Item>
-                                    <MinusCircleOutlined onClick={() => remove(name)} />
-                                </Space>
-                            ))}
-                            <Form.Item>
-                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                    添加工作经历
-                                </Button>
-                            </Form.Item>
-                        </>
-                    )}
-                </Form.List>
             </Modal>
             {/* 展示数据列表的表 */}
             <Table
