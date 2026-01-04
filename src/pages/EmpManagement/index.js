@@ -3,7 +3,7 @@ import { Button, Card, Input, Space, Table, Flex, Form, Modal, InputNumber, Date
 import dayjs from 'dayjs';
 import { LoadingOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { defaultFetchList, deleteDeptById, addEmp, updateDept, getDeptNameById } from '@/store/modules/emp';
+import { defaultFetchList, deleteEmpById, addEmp, updateDept, getDeptNameById } from '@/store/modules/emp';
 import {
     ProFormDateRangePicker,
     ProFormText,
@@ -15,6 +15,8 @@ const EmpManagement = () => {
     const { rows, total } = useSelector(state => state.emp);
     const dispatch = useDispatch();
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    // 删除员工时选中的员工的id
+    const [selectedId, setSelectedId] = useState(null);
     // 初始的表单参数
     const [tableParams, setTableParams] = useState({
         pagination: {
@@ -22,19 +24,51 @@ const EmpManagement = () => {
             pageSize: 10,
         },
     });
-    // 职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师
-    const job = {
-        1: '班主任',
-        2: '讲师',
-        3: '学工主管',
-        4: '教研主管',
-        5: '咨询师'
-    }
-    // ------------------------------------------------------------
+    // 判断参数是否为null undefined
+    const isNonNullable = val => {
+        return val !== undefined && val !== null;
+    };
 
     // 新增员工
+    // 表单中的头像上传
+    const [loading, setLoading] = useState(false);
+    // 头像的url 是OSS的URL
+    const [imageUrl, setImageUrl] = useState();
+    const getBase64 = (img, callback) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => callback(reader.result));
+        reader.readAsDataURL(img);
+    };
+    const beforeUpload = file => {  // 上传前检验
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+            message.error('只能上传JPG/PNG格式图片!');
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            message.error('图片大小不能超过2MB!');
+        }
+        return isJpgOrPng && isLt2M;
+    };
+    const uploadButton = (
+        <button style={{ border: 0, background: 'none' }} type="button">
+            {loading ? <LoadingOutlined /> : <PlusOutlined />}
+            <div style={{ marginTop: 8 }}>Upload</div>
+        </button>
+    );
+    const handleChange = info => {
+        if (info.file.status === 'uploading') {
+            setLoading(true);
+            return;
+        }
+        if (info.file.status === 'done') {
+            getBase64(info.file.originFileObj, () => {
+                setLoading(false);
+                setImageUrl(info.file.response.data);
+            });
+        }
+    };
     const [form] = Form.useForm();
-    const [formValues, setFormValues] = useState();
     const [open, setOpen] = useState(false);
     const getFormParams = (params) => {  // 封装新增员工的参数
         const formParams = {};
@@ -55,6 +89,9 @@ const EmpManagement = () => {
             formParams.entryTime = params.entryTime.format('YYYY-MM-DD');
         }
         // 头像的url封装 字段名image
+        if (isNonNullable(imageUrl)) {
+            formParams.image = imageUrl;
+        }
         if (isNonNullable(params.empExprs)) {
             const newEmpExprs = params.empExprs.map(item => ({
                 ...item,
@@ -68,23 +105,50 @@ const EmpManagement = () => {
         }
         return formParams;
     };
+    // 点击确定后发送表单中新员工的所有数据
     const onCreate = values => {
         const newValues = getFormParams(values);
         console.log('新增员工的信息是：', newValues);
-        setFormValues(newValues);
         dispatch(addEmp(newValues, getParams(tableParams)));
         setOpen(false);
     };
     // ------------------------------------------------------------
 
-    // 头像上传
-    const [loading, setLoading] = useState(false);
-    const [imageUrl, setImageUrl] = useState();
-    // ------------------------------------------------------------
+    // 分页查询
+    const handleTableChange = (pagination) => {
+        console.log(`当前分页数据：当前页：${pagination.current}，每页数据数：${pagination.pageSize}`);
+        setTableParams(prev => ({
+            ...prev,
+            pagination: {
+                current: pagination.current,
+                pageSize: pagination.pageSize,
+            }
+        }));
+    };
+    // 条件查询
+    const handleQuery = (value) => {
+        console.log(value);
 
-    // 判断参数是否为null undefined
-    const isNonNullable = val => {
-        return val !== undefined && val !== null;
+        console.log(`当前选择参数：name : ${value?.name},
+             gender : ${value?.gender}, 
+             begin : ${value.contract?.createTime[0]}, 
+             end : ${value.contract?.createTime[1]}`);
+        setTableParams({
+            ...tableParams,
+            name: value?.name,
+            gender: value?.gender,
+            begin: value.contract?.createTime[0],
+            end: value.contract?.createTime[1]
+        });
+    };
+    // 重置后，查询条件都没有了，即是普通的分页查询，页数都是默认值
+    const handleReset = () => {
+        setTableParams({
+            pagination: {
+                current: 1,
+                pageSize: 10,
+            },
+        });
     };
     // 通过条件、分页参数封装的传给后端的数据
     const getParams = (params) => {
@@ -129,7 +193,33 @@ const EmpManagement = () => {
     };
     const hasSelected = selectedRowKeys.length > 0;
 
+    // 删除员工
+    // 删除员工确认框开合状态
+    const [isModalOpenDel, setIsModalOpenDel] = useState(false);
+    // 删除员工确认框
+    const showModalDel = () => {
+        setIsModalOpenDel(true);
+    };
+    const handleOkDel = () => {
+        setIsModalOpenDel(false);
+        dispatch(deleteEmpById(selectedId, getParams(tableParams)));
+        setSelectedId(null);
+    };
+    const handleCancelDel = () => {
+        setIsModalOpenDel(false);
+        setSelectedId(null);
+    };
+    // ------------------------------------------------------------
+
     // 列表的列
+    // 根据index显示对应的职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师
+    const job = {
+        1: '班主任',
+        2: '讲师',
+        3: '学工主管',
+        4: '教研主管',
+        5: '咨询师'
+    }
     const columns = [
         {
             title: '姓名',
@@ -146,6 +236,7 @@ const EmpManagement = () => {
             title: '头像',
             dataIndex: 'image',
             key: 'image',
+            render: (_, record) => <img src={record.image} alt="avatar" style={{ width: 50 }} />
         },
         {
             title: '所属部门',
@@ -186,8 +277,8 @@ const EmpManagement = () => {
                     </span>
                     <span
                         onClick={() => {
-                            // showModal3();
-                            // setSelectedId(record.id);
+                            showModalDel();
+                            setSelectedId(record.id);
                         }}
                         style={{ color: 'red', cursor: 'pointer' }}
                     >
@@ -197,84 +288,6 @@ const EmpManagement = () => {
             ),
         },
     ];
-    // ------------------------------------------------------------
-
-    // 分页
-    const handleTableChange = (pagination) => {
-        console.log(`当前分页数据：当前页：${pagination.current}，每页数据数：${pagination.pageSize}`);
-        setTableParams(prev => ({
-            ...prev,
-            pagination: {
-                current: pagination.current,
-                pageSize: pagination.pageSize,
-            }
-        }));
-    };
-    // ------------------------------------------------------------
-
-    // 条件查询
-    const handleQuery = (value) => {
-        console.log(value);
-
-        console.log(`当前选择参数：name : ${value?.name},
-             gender : ${value?.gender}, 
-             begin : ${value.contract?.createTime[0]}, 
-             end : ${value.contract?.createTime[1]}`);
-        setTableParams({
-            ...tableParams,
-            name: value?.name,
-            gender: value?.gender,
-            begin: value.contract?.createTime[0],
-            end: value.contract?.createTime[1]
-        });
-    };
-    // 重置后，查询条件都没有了，即是普通的分页查询，页数都是默认值
-    const handleReset = () => {
-        setTableParams({
-            pagination: {
-                current: 1,
-                pageSize: 10,
-            },
-        });
-    };
-    // ------------------------------------------------------------
-
-    // 表单中的头像上传
-    const getBase64 = (img, callback) => {
-        const reader = new FileReader();
-        reader.addEventListener('load', () => callback(reader.result));
-        reader.readAsDataURL(img);
-    };
-    const beforeUpload = file => {  // 上传前检验
-        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-        if (!isJpgOrPng) {
-            message.error('只能上传JPG/PNG格式图片!');
-        }
-        const isLt2M = file.size / 1024 / 1024 < 2;
-        if (!isLt2M) {
-            message.error('图片大小不能超过2MB!');
-        }
-        return isJpgOrPng && isLt2M;
-    };
-    const uploadButton = (
-        <button style={{ border: 0, background: 'none' }} type="button">
-            {loading ? <LoadingOutlined /> : <PlusOutlined />}
-            <div style={{ marginTop: 8 }}>Upload</div>
-        </button>
-    );
-    const handleChange = info => {
-        if (info.file.status === 'uploading') {
-            setLoading(true);
-            return;
-        }
-        if (info.file.status === 'done') {
-            // Get this url from response in real world.
-            getBase64(info.file.originFileObj, url => {
-                setLoading(false);
-                setImageUrl(url);
-            });
-        }
-    };
     // ------------------------------------------------------------
 
     return (
@@ -307,7 +320,7 @@ const EmpManagement = () => {
                 />
             </QueryFilter>
 
-            {/*<Modal
+            {/* <Modal
                 title="修改部门"
                 closable={{ 'aria-label': 'Custom Close Button' }}
                 open={isModalOpen2}
@@ -315,16 +328,16 @@ const EmpManagement = () => {
                 onCancel={handleCancel2}
             >
                 <Input value={deptName} onChange={(e) => setDeptName(e.target.value)} />
-            </Modal>
-            <Modal
-                title="删除部门"
-                closable={{ 'aria-label': 'Custom Close Button' }}
-                open={isModalOpen3}
-                onOk={handleOk3}
-                onCancel={handleCancel3}
-            >
-                <p>确认要删除该部门吗？</p>
             </Modal> */}
+            <Modal
+                title="删除员工"
+                closable={{ 'aria-label': 'Custom Close Button' }}
+                open={isModalOpenDel}
+                onOk={handleOkDel}
+                onCancel={handleCancelDel}
+            >
+                <p>确认要删除该员工吗？</p>
+            </Modal>
             <Flex align="center" gap="middle">
                 <Button onClick={() => setOpen(true)}>新增员工</Button>
                 <Button type="primary" disabled={!hasSelected}>
@@ -436,12 +449,12 @@ const EmpManagement = () => {
 
                 <Form.Item label='头像' layout='horizontal'>
                     <Flex gap={'small'}>
-                        {/* <Upload
-                            name="avatar"
+                        <Upload
+                            name="file"
                             listType="picture-card"
                             className="avatar-uploader"
                             showUploadList={false}
-                            action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+                            action="http://localhost:8080/upload"
                             beforeUpload={beforeUpload}
                             onChange={handleChange}
                         >
@@ -450,7 +463,7 @@ const EmpManagement = () => {
                             ) : (
                                 uploadButton
                             )}
-                        </Upload> */}
+                        </Upload>
                         <Card size='small' style={{ width: 250, height: 125, fontSize: 12 }}>
                             <p>图片大小不超过2M</p>
                             <p>只能上传JPG、PNG图片</p>

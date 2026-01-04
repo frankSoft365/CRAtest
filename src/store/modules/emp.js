@@ -42,11 +42,11 @@ const defaultFetchList = (tableParams) => {
     };
 };
 
-const deleteDeptById = (id) => {
+const deleteEmpById = (id, tableParams) => {
     return async (dispatch) => {
-        // await request.delete('http://localhost:8080/depts?id=' + id);
-        // console.log('已发送delete请求');
-        // dispatch(fetchList());
+        await request.delete('http://localhost:8080/depts?id=' + id);
+        console.log('已发送delete请求');
+        dispatch(defaultFetchList(tableParams));
     }
 }
 
@@ -77,6 +77,6 @@ const getDeptNameById = (id) => {
 
 const reducer = empReducer.reducer;
 
-export { defaultFetchList, deleteDeptById, addEmp, updateDept, getDeptNameById };
+export { defaultFetchList, deleteEmpById, addEmp, updateDept, getDeptNameById };
 
 export default reducer;
