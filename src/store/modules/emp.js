@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { request } from "@/utils";
+import { request, toURLSearchParams } from "@/utils";
 
 const empReducer = createSlice({
     name: "emp",
@@ -23,28 +23,22 @@ const empReducer = createSlice({
 
 const { setRows, setTotal, setQueryReturn } = empReducer.actions;
 
-const toURLSearchParams = record => {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(record)) {
-        params.append(key, value);
-    }
-    return params;
-};
-
 const defaultFetchList = (tableParams) => {
     return async (dispatch) => {
-        const params = toURLSearchParams(tableParams);
-        console.log('页面传递的参数是' + params.toString());
-        const res = await request.get(`http://localhost:8080/emps?${params.toString()}`);
+        const params = toURLSearchParams(tableParams).toString();
+        console.log('页面传递的参数是' + params);
+        const res = await request.get(`http://localhost:8080/emps?${params}`);
         console.log(res.data.data);
         dispatch(setRows(res.data.data.rows));
         dispatch(setTotal(res.data.data.total));
     };
 };
 
-const deleteEmpById = (id, tableParams) => {
+const deleteEmpByIds = (ids, tableParams) => {
     return async (dispatch) => {
-        await request.delete('http://localhost:8080/depts?id=' + id);
+        const params = toURLSearchParams(ids).toString();
+        console.log("url参数 : ", params);
+        await request.delete(`http://localhost:8080/emps?${params}`);
         console.log('已发送delete请求');
         dispatch(defaultFetchList(tableParams));
     }
@@ -58,25 +52,26 @@ const addEmp = (emp, tableParams) => {
     }
 }
 
-const updateDept = (dept) => {
+const updateEmp = (emp, tableParams) => {
     return async (dispatch) => {
-        // await request.put('http://localhost:8080/depts', dept);
-        // console.log('已发送update请求');
-        // dispatch(fetchList());
+        await request.put('http://localhost:8080/emps', emp);
+        console.log('已发送update请求');
+        dispatch(defaultFetchList(tableParams));
     }
 }
 
-const getDeptNameById = (id) => {
+const getQueryReturnById = (id) => {
     return async (dispatch) => {
-        // const res = await request.get('http://localhost:8080/depts/' + id);
-        // console.log(res.data.data);
-        // dispatch(setQueryReturn(res.data.data));
+        console.log('发送查询回显请求！');
+        const res = await request.get('http://localhost:8080/emps/' + id);
+        console.log('查询回显获取到员工信息：', res.data.data);
+        dispatch(setQueryReturn(res.data.data));
     };
 };
 
 
 const reducer = empReducer.reducer;
 
-export { defaultFetchList, deleteEmpById, addEmp, updateDept, getDeptNameById };
+export { defaultFetchList, deleteEmpByIds, addEmp, updateEmp, getQueryReturnById, setQueryReturn };
 
 export default reducer;
