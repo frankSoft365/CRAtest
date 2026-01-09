@@ -23,7 +23,10 @@ const items = [
         getItem('部门管理', '3'),
         getItem('员工管理', '4'),
     ]),
-    getItem('数据统计管理', 'sub2', <BarChartOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+    getItem('数据统计管理', 'sub2', <BarChartOutlined />, [
+        getItem('Team 1', '6'),
+        getItem('Team 2', '8')
+    ]),
 ];
 // Map menu keys to route paths
 const keyToPath = {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Card, Input, Space, Table, Flex, Form, Modal, InputNumber, DatePicker, Select, Upload, message } from 'antd';
 import dayjs from 'dayjs';
 import { LoadingOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
@@ -156,7 +156,7 @@ const EmpManagement = () => {
         });
     };
     // 通过条件、分页参数封装的传给后端的数据
-    const getParams = (params) => {
+    const getParams = useCallback((params) => {
         const { pagination, name, gender, begin, end } = params;
         const result = {};
         result.page = pagination.current;
@@ -174,19 +174,15 @@ const EmpManagement = () => {
             result.end = end;
         }
         return result;
-    }
+    }, []);
     // 分页查询员工列表 默认 第一页 每页10条数据
     useEffect(() => {
-        dispatch(defaultFetchList(getParams(tableParams)));
-        console.log('selectedRowKeys : ', selectedRowKeys);
-
+        const finalTableParams = getParams(tableParams);
+        dispatch(defaultFetchList(finalTableParams));
     }, [
-        tableParams.pagination.current,
-        tableParams.pagination.pageSize,
-        tableParams?.name,
-        tableParams?.gender,
-        tableParams?.begin,
-        tableParams?.end
+        dispatch,
+        getParams,
+        tableParams
     ]);
     // ------------------------------------------------------------
 
@@ -256,7 +252,7 @@ const EmpManagement = () => {
         dispatch(setQueryReturn(null));
         setSelectedId(null);
     };
-    const analyzeParams = (emp) => {
+    const analyzeParams = useCallback((emp) => {
         if (emp === null) {
             return null;
         }
@@ -269,8 +265,6 @@ const EmpManagement = () => {
         const salary = emp.salary;
         const deptId = emp.deptId;
         const entryTime = emp.entryTime;
-        // 图片处理
-        const url = emp.image;
         const empExprs = emp.exprList;
         if (isNonNullable(username)) {
             formParams.username = username;
@@ -296,9 +290,6 @@ const EmpManagement = () => {
         if (isNonNullable(entryTime)) {
             formParams.entryTime = dayjs(entryTime);
         };
-        if (isNonNullable(url)) {
-            setImageUrl(url);
-        };
         if (isNonNullable(empExprs)) {
             const newEmpExprs = empExprs.map((expr) => {
                 return {
@@ -309,12 +300,18 @@ const EmpManagement = () => {
             formParams.empExprs = newEmpExprs;
         }
         return formParams;
-    };
+    }, []);
     useEffect(() => {
         if (editOpen && queryReturn) {
             editForm.setFieldsValue(analyzeParams(queryReturn));
+            // Set imageUrl only when opening edit and image exists
+            if (queryReturn.image) {
+                setImageUrl(queryReturn.image);
+            } else {
+                setImageUrl(null);
+            }
         }
-    }, [editOpen, editForm, queryReturn]);
+    }, [editOpen, editForm, queryReturn, analyzeParams]);
 
     // 列表的列
     // 根据index显示对应的职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师
@@ -772,7 +769,7 @@ const EmpManagement = () => {
                 <Button type="primary" onClick={deleteBatch} disabled={!hasSelected} loading={deleteLoading}>
                     批量删除
                 </Button>
-                {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
+                {hasSelected ? `批量删除选中的 ${selectedRowKeys.length} 项` : null}
             </Flex>
             {/* 展示数据列表的表 */}
             <Table
