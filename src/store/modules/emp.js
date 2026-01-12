@@ -12,7 +12,7 @@ const empReducer = createSlice({
             message: null
         },
         empJobStats: [],
-        empGenderStats: null,
+        empGenderStats: [],
     },
     reducers: {
         setRows(state, action) {
@@ -36,7 +36,7 @@ const empReducer = createSlice({
     }
 });
 
-const { setRows, setTotal, setQueryReturn, setResult, setEmpJobStats } = empReducer.actions;
+const { setRows, setTotal, setQueryReturn, setResult, setEmpJobStats, setEmpGenderStats } = empReducer.actions;
 
 // 设置异常处理 获取员工列表
 const defaultFetchList = (tableParams) => {
@@ -98,13 +98,23 @@ const getQueryReturnById = (id) => {
         }
     };
 };
-
+// 获取员工职位人数
 const getEmpJobData = () => {
     return async (dispatch) => {
         const res = await request.get('http://localhost:8080/report/empJobData');
         const code = res.data.code;
         if (code === 1) {
             dispatch(setEmpJobStats(res.data.data));
+        }
+    }
+}
+// 获取员工性别人数
+const getEmpGenderData = () => {
+    return async (dispatch) => {
+        const res = await request.get('http://localhost:8080/report/empGenderData');
+        const code = res.data.code;
+        if (code === 1) {
+            dispatch(setEmpGenderStats(res.data.data));
         }
     }
 }
@@ -119,7 +129,8 @@ export {
     getQueryReturnById,
     setQueryReturn,
     setResult,
-    getEmpJobData
+    getEmpJobData,
+    getEmpGenderData,
 };
 
 export default reducer;

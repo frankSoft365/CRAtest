@@ -2,7 +2,7 @@ import { Card, Flex } from "antd";
 import { Column, Pie } from "@ant-design/charts";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { getEmpJobData } from "@/store/modules/emp";
+import { getEmpJobData, getEmpGenderData } from "@/store/modules/emp";
 
 const EmpInfoStats = () => {
     const dispatch = useDispatch();
@@ -10,6 +10,7 @@ const EmpInfoStats = () => {
     const { empJobStats, empGenderStats } = useSelector(state => state.emp);
     useEffect(() => {
         dispatch(getEmpJobData());
+        dispatch(getEmpGenderData());
     }, [dispatch]);
     const jobConfig = {
         data: empJobStats,
@@ -24,15 +25,11 @@ const EmpInfoStats = () => {
         },
     };
     const genderConfig = {
-        data: [
-            // empGenderStats
-            { type: '男', value: 40 },
-            { type: '女', value: 60 },
-        ],
+        data: empGenderStats,
         angleField: 'value',
-        colorField: 'type',
+        colorField: 'name',
         label: {
-            text: 'value',
+            text: 'name',
             style: {
                 fontWeight: 'bold',
             },
