@@ -1,22 +1,22 @@
 import { Card, Flex } from "antd";
-import { Column } from "@ant-design/charts";
+import { Column, Pie } from "@ant-design/charts";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { getEmpJobData } from "@/store/modules/emp";
 
 const EmpInfoStats = () => {
+    const dispatch = useDispatch();
+    // 获取统计数据
+    const { empJobStats, empGenderStats } = useSelector(state => state.emp);
+    useEffect(() => {
+        dispatch(getEmpJobData());
+    }, [dispatch]);
     const jobConfig = {
-        data: {
-            type: 'fetch',
-            value: 'https://render.alipay.com/p/yuyan/180020010001215413/antd-charts/column-column.json',
-        },
-        xField: 'letter',
-        yField: 'frequency',
+        data: empJobStats,
+        xField: 'pos',
+        yField: 'num',
         label: {
-            text: (d) => `${(d.frequency * 100).toFixed(1)}%`,
             textBaseline: 'bottom',
-        },
-        axis: {
-            y: {
-                labelFormatter: '.0%',
-            },
         },
         style: {
             stroke: 'black',
@@ -24,41 +24,44 @@ const EmpInfoStats = () => {
         },
     };
     const genderConfig = {
-        data: {
-            type: 'fetch',
-            value: 'https://render.alipay.com/p/yuyan/180020010001215413/antd-charts/column-column.json',
-        },
-        xField: 'letter',
-        yField: 'frequency',
+        data: [
+            // empGenderStats
+            { type: '男', value: 40 },
+            { type: '女', value: 60 },
+        ],
+        angleField: 'value',
+        colorField: 'type',
         label: {
-            text: (d) => `${(d.frequency * 100).toFixed(1)}%`,
-            textBaseline: 'bottom',
-        },
-        axis: {
-            y: {
-                labelFormatter: '.0%',
+            text: 'value',
+            style: {
+                fontWeight: 'bold',
             },
         },
-        style: {
-            stroke: 'black',
-            strokeWidth: 2,
+        legend: {
+            color: {
+                title: false,
+                position: 'right',
+                rowPadding: 5,
+            },
         },
     };
     return (
         <Card>
             <h2>员工信息统计</h2>
-            <Card>
-                <Flex vertical>
-                    <h3>员工职位统计</h3>
-                    <Column {...jobConfig} />
-                </Flex>
-            </Card>
-            <Card>
-                <Flex vertical>
-                    <h3>员工性别统计</h3>
-                    <Column {...genderConfig} />
-                </Flex>
-            </Card>
+            <Flex>
+                <Card style={{ width: '50%' }}>
+                    <Flex vertical>
+                        <h3>员工职位统计</h3>
+                        <Column {...jobConfig} />
+                    </Flex>
+                </Card>
+                <Card style={{ width: '50%' }}>
+                    <Flex vertical>
+                        <h3>员工性别统计</h3>
+                        <Pie {...genderConfig} />
+                    </Flex>
+                </Card>
+            </Flex>
         </Card>
     );
 }

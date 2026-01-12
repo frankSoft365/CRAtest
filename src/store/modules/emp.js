@@ -10,7 +10,9 @@ const empReducer = createSlice({
         result: {
             code: null,
             message: null
-        }
+        },
+        empJobStats: [],
+        empGenderStats: null,
     },
     reducers: {
         setRows(state, action) {
@@ -24,11 +26,17 @@ const empReducer = createSlice({
         },
         setResult(state, action) {
             state.result = action.payload;
-        }
+        },
+        setEmpJobStats(state, action) {
+            state.empJobStats = action.payload;
+        },
+        setEmpGenderStats(state, action) {
+            state.empGenderStats = action.payload;
+        },
     }
 });
 
-const { setRows, setTotal, setQueryReturn, setResult } = empReducer.actions;
+const { setRows, setTotal, setQueryReturn, setResult, setEmpJobStats } = empReducer.actions;
 
 // 设置异常处理 获取员工列表
 const defaultFetchList = (tableParams) => {
@@ -91,9 +99,27 @@ const getQueryReturnById = (id) => {
     };
 };
 
+const getEmpJobData = () => {
+    return async (dispatch) => {
+        const res = await request.get('http://localhost:8080/report/empJobData');
+        const code = res.data.code;
+        if (code === 1) {
+            dispatch(setEmpJobStats(res.data.data));
+        }
+    }
+}
 
 const reducer = empReducer.reducer;
 
-export { defaultFetchList, deleteEmpByIds, addEmp, updateEmp, getQueryReturnById, setQueryReturn, setResult };
+export {
+    defaultFetchList,
+    deleteEmpByIds,
+    addEmp,
+    updateEmp,
+    getQueryReturnById,
+    setQueryReturn,
+    setResult,
+    getEmpJobData
+};
 
 export default reducer;
