@@ -18,24 +18,28 @@ function getItem(label, key, icon, children) {
 }
 const items = [
     getItem('首页', '1', <HomeOutlined />),
-    getItem('班级学员管理', '2', <AppstoreOutlined />),
-    getItem('系统信息管理', 'sub1', <SettingOutlined />, [
-        getItem('部门管理', '3'),
-        getItem('员工管理', '4'),
+    getItem('班级学员管理', 'sub1', <AppstoreOutlined />, [
+        getItem('班级管理', '2'),
+        getItem('学员管理', '3'),
     ]),
-    getItem('数据统计管理', 'sub2', <BarChartOutlined />, [
-        getItem('Team 1', '6'),
-        getItem('Team 2', '8')
+    getItem('系统信息管理', 'sub2', <SettingOutlined />, [
+        getItem('部门管理', '4'),
+        getItem('员工管理', '5'),
+    ]),
+    getItem('数据统计管理', 'sub3', <BarChartOutlined />, [
+        getItem('员工信息统计', '6'),
+        getItem('学员信息统计', '7')
     ]),
 ];
 // Map menu keys to route paths
 const keyToPath = {
     '1': '/',
-    '2': '', // update this if you have a path for 班级学员管理
-    '3': '/deptManagement',
-    '4': '/empManagement', // update this if you have a path for 员工管理
-    '6': '', // update this if you have a path for Team 1
-    '8': '', // update this if you have a path for Team 2
+    '2': '',
+    '3': '',
+    '4': '/deptManagement',
+    '5': '/empManagement',
+    '6': '/EmpInfoStats',
+    '7': '',
 };
 // Map route paths to menu keys
 const pathToKey = Object.entries(keyToPath).reduce((acc, [key, path]) => {

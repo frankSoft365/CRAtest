@@ -4,6 +4,7 @@ import Login from "../pages/Login";
 import Index from "@/pages/Index";
 import DeptManagement from "@/pages/DeptManagement";
 import EmpManagement from "@/pages/EmpManagement";
+import EmpInfoStats from "@/pages/EmpInfoStats";
 
 const router = createBrowserRouter([
     {
@@ -21,7 +22,11 @@ const router = createBrowserRouter([
             {
                 path: '/empManagement',
                 element: <EmpManagement />
-            }
+            },
+            {
+                path: '/empInfoStats',
+                element: <EmpInfoStats />
+            },
         ]
     },
     {

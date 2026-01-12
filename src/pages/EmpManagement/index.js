@@ -3,7 +3,15 @@ import { Button, Card, Input, Space, Table, Flex, Form, Modal, InputNumber, Date
 import dayjs from 'dayjs';
 import { LoadingOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { defaultFetchList, deleteEmpByIds, addEmp, updateEmp, getQueryReturnById, setQueryReturn } from '@/store/modules/emp';
+import {
+    defaultFetchList,
+    deleteEmpByIds,
+    addEmp,
+    updateEmp,
+    getQueryReturnById,
+    setQueryReturn,
+    setResult
+} from '@/store/modules/emp';
 import {
     ProFormDateRangePicker,
     ProFormText,
@@ -12,7 +20,7 @@ import {
 } from '@ant-design/pro-components';
 
 const EmpManagement = () => {
-    const { rows, total, queryReturn } = useSelector(state => state.emp);
+    const { rows, total, queryReturn, result } = useSelector(state => state.emp);
     const dispatch = useDispatch();
     // 删除员工时选中的员工的id
     const [selectedId, setSelectedId] = useState(null);
@@ -34,6 +42,18 @@ const EmpManagement = () => {
             key: row.id
         };
     });
+
+    // 异常全局处理
+    const [messageApi, contextHolder] = message.useMessage();
+    useEffect(() => {
+        if (result.code !== null && result.message !== null) {
+            messageApi.open({
+                type: result.code === 1 ? 'success' : 'error',
+                content: result.message,
+                onClose: () => dispatch(setResult({ code: null, message: null })),
+            });
+        }
+    }, [result, messageApi, dispatch]);
 
     // 新增员工
     // 表单中的头像上传
@@ -182,7 +202,7 @@ const EmpManagement = () => {
     }, [
         dispatch,
         getParams,
-        tableParams
+        tableParams,
     ]);
     // ------------------------------------------------------------
 
@@ -304,7 +324,6 @@ const EmpManagement = () => {
     useEffect(() => {
         if (editOpen && queryReturn) {
             editForm.setFieldsValue(analyzeParams(queryReturn));
-            // Set imageUrl only when opening edit and image exists
             if (queryReturn.image) {
                 setImageUrl(queryReturn.image);
             } else {
@@ -388,6 +407,8 @@ const EmpManagement = () => {
     return (
         <Card>
             <h2>员工管理</h2>
+            {/* 全局异常处理提示message */}
+            {contextHolder}
             {/* 条件查询的条件筛选面板 */}
             <QueryFilter defaultCollapsed={false} split span={6.5} onFinish={handleQuery} onReset={handleReset}>
                 <ProFormText name="name" label="姓名" placeholder='请输入员工姓名' />

@@ -6,7 +6,11 @@ const empReducer = createSlice({
     initialState: {
         rows: [],
         total: null,
-        queryReturn: null
+        queryReturn: null,
+        result: {
+            code: null,
+            message: null
+        }
     },
     reducers: {
         setRows(state, action) {
@@ -17,20 +21,28 @@ const empReducer = createSlice({
         },
         setQueryReturn(state, action) {
             state.queryReturn = action.payload;
+        },
+        setResult(state, action) {
+            state.result = action.payload;
         }
     }
 });
 
-const { setRows, setTotal, setQueryReturn } = empReducer.actions;
+const { setRows, setTotal, setQueryReturn, setResult } = empReducer.actions;
 
+// 设置异常处理 获取员工列表
 const defaultFetchList = (tableParams) => {
     return async (dispatch) => {
         const params = toURLSearchParams(tableParams).toString();
-        console.log('页面传递的参数是' + params);
         const res = await request.get(`http://localhost:8080/emps?${params}`);
-        console.log(res.data.data);
-        dispatch(setRows(res.data.data.rows));
-        dispatch(setTotal(res.data.data.total));
+        const code = res.data.code;
+        const data = res.data.data;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(setRows(data.rows));
+            dispatch(setTotal(data.total));
+        }
     };
 };
 
@@ -52,26 +64,36 @@ const addEmp = (emp, tableParams) => {
     }
 }
 
+// 设置异常处理 更改员工信息
 const updateEmp = (emp, tableParams) => {
     return async (dispatch) => {
-        await request.put('http://localhost:8080/emps', emp);
+        const res = await request.put('http://localhost:8080/emps', emp);
         console.log('已发送update请求');
-        dispatch(defaultFetchList(tableParams));
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(defaultFetchList(tableParams));
+        }
     }
 }
 
+// 设置异常处理 获取查询回显的员工信息
 const getQueryReturnById = (id) => {
     return async (dispatch) => {
         console.log('发送查询回显请求！');
         const res = await request.get('http://localhost:8080/emps/' + id);
         console.log('查询回显获取到员工信息：', res.data.data);
-        dispatch(setQueryReturn(res.data.data));
+        const code = res.data.code;
+        if (code === 1) {
+            dispatch(setQueryReturn(res.data.data));
+        }
     };
 };
 
 
 const reducer = empReducer.reducer;
 
-export { defaultFetchList, deleteEmpByIds, addEmp, updateEmp, getQueryReturnById, setQueryReturn };
+export { defaultFetchList, deleteEmpByIds, addEmp, updateEmp, getQueryReturnById, setQueryReturn, setResult };
 
 export default reducer;
