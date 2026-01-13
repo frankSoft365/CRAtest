@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { request, toURLSearchParams } from "@/utils";
 
-const empReducer = createSlice({
-    name: "emp",
+const clazzReducer = createSlice({
+    name: "clazz",
     initialState: {
         rows: [],
         total: null,
@@ -11,9 +11,6 @@ const empReducer = createSlice({
             code: null,
             message: null
         },
-        empJobStats: [],
-        empGenderStats: [],
-        allEmp: [],
     },
     reducers: {
         setRows(state, action) {
@@ -28,29 +25,16 @@ const empReducer = createSlice({
         setResult(state, action) {
             state.result = action.payload;
         },
-        setEmpJobStats(state, action) {
-            state.empJobStats = action.payload;
-        },
-        setEmpGenderStats(state, action) {
-            state.empGenderStats = action.payload;
-        },
-        setAllEmp(state, action) {
-            state.allEmp = action.payload;
-        },
     }
 });
-const { setRows,
-    setTotal,
-    setQueryReturn,
-    setResult,
-    setEmpJobStats,
-    setEmpGenderStats,
-    setAllEmp } = empReducer.actions;
+
+const { setRows, setTotal, setQueryReturn, setResult } = clazzReducer.actions;
+
 // 设置异常处理 获取员工列表
 const defaultFetchList = (tableParams) => {
     return async (dispatch) => {
         const params = toURLSearchParams(tableParams).toString();
-        const res = await request.get(`http://localhost:8080/emps?${params}`);
+        const res = await request.get(`http://localhost:8080/clazzs?${params}`);
         const code = res.data.code;
         const data = res.data.data;
         const message = res.data.msg;
@@ -106,39 +90,28 @@ const getQueryReturnById = (id) => {
         }
     };
 };
-// 获取员工职位人数
-const getEmpJobData = () => {
-    return async (dispatch) => {
-        const res = await request.get('http://localhost:8080/report/empJobData');
-        const code = res.data.code;
-        if (code === 1) {
-            dispatch(setEmpJobStats(res.data.data));
-        }
-    }
-}
-// 获取员工性别人数
-const getEmpGenderData = () => {
-    return async (dispatch) => {
-        const res = await request.get('http://localhost:8080/report/empGenderData');
-        const code = res.data.code;
-        if (code === 1) {
-            dispatch(setEmpGenderStats(res.data.data));
-        }
-    }
-}
+// // 获取员工职位人数
+// const getEmpJobData = () => {
+//     return async (dispatch) => {
+//         const res = await request.get('http://localhost:8080/report/empJobData');
+//         const code = res.data.code;
+//         if (code === 1) {
+//             dispatch(setEmpJobStats(res.data.data));
+//         }
+//     }
+// }
+// // 获取员工性别人数
+// const getEmpGenderData = () => {
+//     return async (dispatch) => {
+//         const res = await request.get('http://localhost:8080/report/empGenderData');
+//         const code = res.data.code;
+//         if (code === 1) {
+//             dispatch(setEmpGenderStats(res.data.data));
+//         }
+//     }
+// }
 
-// 查询所有员工
-const getAllEmp = () => {
-    return async (dispatch) => {
-        const res = await request.get('http://localhost:8080/emps/list');
-        const code = res.data.code;
-        if (code === 1) {
-            dispatch(setAllEmp(res.data.data));
-        }
-    }
-}
-
-const reducer = empReducer.reducer;
+const reducer = clazzReducer.reducer;
 
 export {
     defaultFetchList,
@@ -148,9 +121,8 @@ export {
     getQueryReturnById,
     setQueryReturn,
     setResult,
-    getEmpJobData,
-    getEmpGenderData,
-    getAllEmp,
+    // getEmpJobData,
+    // getEmpGenderData,
 };
 
 export default reducer;

@@ -34,11 +34,11 @@ const items = [
 // Map menu keys to route paths
 const keyToPath = {
     '1': '/',
-    '2': '',
+    '2': '/clazzManagement',
     '3': '',
     '4': '/deptManagement',
     '5': '/empManagement',
-    '6': '/EmpInfoStats',
+    '6': '/empInfoStats',
     '7': '',
 };
 // Map route paths to menu keys
