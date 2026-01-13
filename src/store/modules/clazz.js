@@ -56,9 +56,9 @@ const deleteEmpByIds = (ids, tableParams) => {
     }
 }
 
-const addEmp = (emp, tableParams) => {
+const addClazz = (clazz, tableParams) => {
     return async (dispatch) => {
-        await request.post('http://localhost:8080/emps', emp);
+        await request.post('http://localhost:8080/clazzs', clazz);
         console.log('已发送add请求');
         dispatch(defaultFetchList(tableParams));
     }
@@ -116,7 +116,7 @@ const reducer = clazzReducer.reducer;
 export {
     defaultFetchList,
     deleteEmpByIds,
-    addEmp,
+    addClazz,
     updateEmp,
     getQueryReturnById,
     setQueryReturn,

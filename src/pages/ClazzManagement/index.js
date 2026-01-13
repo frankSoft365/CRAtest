@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     defaultFetchList,
     deleteEmpByIds,
-    addEmp,
+    addClazz,
     updateEmp,
     getQueryReturnById,
     setQueryReturn,
@@ -53,34 +53,17 @@ const ClazzManagement = () => {
     // 新增班级
     const [addForm] = Form.useForm();
     const [open, setOpen] = useState(false);
-    const getFormParams = (params) => {  // 封装新增员工的参数
+    const getFormParams = (params) => {  // 封装新增班级的参数
         const formParams = {};
-        formParams.username = params.username;
         formParams.name = params.name;
-        formParams.gender = params.gender;
-        formParams.phone = params.phone;
-        if (isNonNullable(params.job)) {
-            formParams.job = params.job;
+        formParams.subject = params.subject;
+        formParams.beginDate = params.beginDate.format('YYYY-MM-DD');
+        formParams.endDate = params.endDate.format('YYYY-MM-DD');
+        if (isNonNullable(params.room)) {
+            formParams.room = params.room;
         }
-        if (isNonNullable(params.salary)) {
-            formParams.salary = params.salary;
-        }
-        if (isNonNullable(params.deptId)) {
-            formParams.deptId = params.deptId;
-        }
-        if (isNonNullable(params.entryTime)) {
-            formParams.entryTime = params.entryTime.format('YYYY-MM-DD');
-        }
-        if (isNonNullable(params.empExprs)) {
-            const newEmpExprs = params.empExprs.map(item => ({
-                ...item,
-                begin: item.date[0].format('YYYY-MM-DD'),
-                end: item.date[1].format('YYYY-MM-DD'),
-            }));
-            const resultEmpExprs = newEmpExprs.map(({ date, ...rest }) => rest)
-            formParams.exprList = resultEmpExprs;
-        } else {
-            formParams.exprList = [];
+        if (isNonNullable(params.masterId)) {
+            formParams.masterId = params.masterId;
         }
         return formParams;
     };
@@ -100,10 +83,9 @@ const ClazzManagement = () => {
     };
     // 点击确定后发送表单中新员工的所有数据
     const onCreate = values => {
-        console.log(values);
         const newValues = getFormParams(values);
-        console.log('新增员工的信息是：', newValues);
-        dispatch(addEmp(newValues, getParams(tableParams)));
+        console.log('新增班级的信息是：', newValues);
+        dispatch(addClazz(newValues, getParams(tableParams)));
         setOpen(false);
     };
     // ------------------------------------------------------------
@@ -168,7 +150,6 @@ const ClazzManagement = () => {
 
     // 删除员工
     // 批量删除员工
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const deleteBatch = () => {
         setDeleteLoading(true);
@@ -513,14 +494,14 @@ const ClazzManagement = () => {
                 </Form.Item>
                 <Form.Item
                     label="开课时间"
-                    name="beginTime"
+                    name="beginDate"
                     rules={[{ required: true, message: '请输入开课时间！' }]}
                 >
                     <DatePicker placeholder='请选择开课时间' style={{ width: 150 }} />
                 </Form.Item>
                 <Form.Item
                     label="结课时间"
-                    name="endTime"
+                    name="endDate"
                     rules={[{ required: true, message: '请输入结课时间！' }]}
                 >
                     <DatePicker placeholder='请选择结课时间' style={{ width: 150 }} />
