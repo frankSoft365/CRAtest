@@ -73,9 +73,9 @@ const deleteEmpByIds = (ids, tableParams) => {
     }
 }
 
-const addEmp = (emp, tableParams) => {
+const addStudent = (student, tableParams) => {
     return async (dispatch) => {
-        const res = await request.post('http://localhost:8080/emps', emp);
+        const res = await request.post('http://localhost:8080/students', student);
         console.log('已发送add请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -149,7 +149,7 @@ const reducer = studentReducer.reducer;
 export {
     defaultFetchList,
     deleteEmpByIds,
-    addEmp,
+    addStudent,
     updateEmp,
     getQueryReturnById,
     setQueryReturn,
