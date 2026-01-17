@@ -194,8 +194,7 @@ const EmpManagement = () => {
     }, []);
     // 分页查询员工列表 默认 第一页 每页10条数据
     useEffect(() => {
-        const finalTableParams = getParams(tableParams);
-        dispatch(defaultFetchList(finalTableParams));
+        dispatch(defaultFetchList(getParams(tableParams)));
     }, [
         dispatch,
         getParams,

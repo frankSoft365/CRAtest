@@ -1,5 +1,5 @@
 import { request } from "./request";
-import { toURLSearchParams } from "./urlParams";
+import { toURLSearchParams } from "./toURLSearchParams";
 
 export {
     request,

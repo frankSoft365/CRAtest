@@ -11,7 +11,7 @@ import {
     getQueryReturnById,
     setQueryReturn,
     setResult
-} from '@/store/modules/emp';
+} from '@/store/modules/student';
 import {
     ProFormDateRangePicker,
     ProFormText,
@@ -20,10 +20,11 @@ import {
 } from '@ant-design/pro-components';
 import isNonNullable from '@/utils/isNonNullable';
 
-const studentManagement = () => {
-    const { rows, total, queryReturn, result } = useSelector(state => state.emp);
+const StudentManagement = () => {
+    const { rows, total, queryReturn, result } = useSelector(state => state.student);
+    const { allClazz } = useSelector(state => state.clazz);
     const dispatch = useDispatch();
-    // 删除员工时选中的员工的id
+    // 删除、修改时选中学员的id
     const [selectedId, setSelectedId] = useState(null);
     // 初始的表单参数
     const [tableParams, setTableParams] = useState({
@@ -151,16 +152,11 @@ const studentManagement = () => {
     };
     // 条件查询
     const handleQuery = (value) => {
-        console.log(`当前选择参数：name : ${value?.name},
-             gender : ${value?.gender}, 
-             begin : ${value.contract?.createTime[0]}, 
-             end : ${value.contract?.createTime[1]}`);
         setTableParams({
             ...tableParams,
             name: value?.name,
-            gender: value?.gender,
-            begin: value.contract?.createTime[0],
-            end: value.contract?.createTime[1]
+            degree: value?.degree,
+            clazzId: value?.clazzId,
         });
     };
     // 重置后，查询条件都没有了，即是普通的分页查询，页数都是默认值
@@ -174,28 +170,24 @@ const studentManagement = () => {
     };
     // 通过条件、分页参数封装的传给后端的数据
     const getParams = useCallback((params) => {
-        const { pagination, name, gender, begin, end } = params;
+        const { pagination, name, degree, clazzId } = params;
         const result = {};
         result.page = pagination.current;
         result.pageSize = pagination.pageSize;
         if (isNonNullable(name)) {
             result.name = name;
         }
-        if (isNonNullable(gender)) {
-            result.gender = gender;
+        if (isNonNullable(degree)) {
+            result.degree = degree;
         }
-        if (isNonNullable(begin)) {
-            result.begin = begin;
-        }
-        if (isNonNullable(end)) {
-            result.end = end;
+        if (isNonNullable(clazzId)) {
+            result.classId = clazzId;
         }
         return result;
     }, []);
     // 分页查询员工列表 默认 第一页 每页10条数据
     useEffect(() => {
-        const finalTableParams = getParams(tableParams);
-        dispatch(defaultFetchList(finalTableParams));
+        dispatch(defaultFetchList(getParams(tableParams)));
     }, [
         dispatch,
         getParams,
@@ -330,13 +322,22 @@ const studentManagement = () => {
     }, [editOpen, editForm, queryReturn, analyzeParams]);
 
     // 列表的列
-    // 根据index显示对应的职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师
-    const job = {
-        1: '班主任',
-        2: '讲师',
-        3: '学工主管',
-        4: '教研主管',
-        5: '咨询师'
+    // // 根据index显示对应的职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师
+    // const job = {
+    //     1: '班主任',
+    //     2: '讲师',
+    //     3: '学工主管',
+    //     4: '教研主管',
+    //     5: '咨询师'
+    // }
+    //最高学历, 1: 初中, 2: 高中 , 3: 大专 , 4: 本科 , 5: 硕士 , 6: 博士
+    const degreeOption = {
+        1: '初中',
+        2: '高中',
+        3: '大专',
+        4: '本科',
+        5: '硕士',
+        6: '博士'
     }
     const columns = [
         {
@@ -345,32 +346,40 @@ const studentManagement = () => {
             key: 'name',
         },
         {
+            title: '学号',
+            dataIndex: 'no',
+            key: 'no',
+        },
+        {
+            title: '班级',
+            dataIndex: 'clazzName',
+            key: 'clazzName',
+        },
+        {
             title: '性别',
             dataIndex: 'gender',
             key: 'gender',
-            render: (_, record) => record.gender === 1 ? '男' : '女'
         },
         {
-            title: '头像',
-            dataIndex: 'image',
-            key: 'image',
-            render: (_, record) => <img src={record.image} alt="avatar" style={{ width: 40 }} />
+            title: '手机号',
+            dataIndex: 'phone',
+            key: 'phone',
         },
         {
-            title: '所属部门',
-            dataIndex: 'deptName',
-            key: 'deptName',
+            title: '最高学历',
+            dataIndex: 'degree',
+            key: 'degree',
+            render: (_, record) => degreeOption[record.degree]
         },
         {
-            title: '职位',
-            dataIndex: 'job',
-            key: 'job',
-            render: (_, record) => job[record.job]
+            title: '违纪次数',
+            dataIndex: 'violationCount',
+            key: 'violationCount',
         },
         {
-            title: '入职日期',
-            dataIndex: 'entryTime',
-            key: 'entryTime',
+            title: '违纪扣分',
+            dataIndex: 'violationScore',
+            key: 'violationScore',
         },
         {
             title: '最后修改时间',
@@ -391,6 +400,12 @@ const studentManagement = () => {
                     </span>
                     <span
                         onClick={() => showModalDel(record.id)}
+                        style={{ color: 'goldenrod', cursor: 'pointer' }}
+                    >
+                        违纪
+                    </span>
+                    <span
+                        onClick={() => showModalDel(record.id)}
                         style={{ color: 'red', cursor: 'pointer' }}
                     >
                         删除
@@ -399,37 +414,45 @@ const studentManagement = () => {
             ),
         },
     ];
+    // 获取所有班级选项
+    const getClazzOption = (clazzList) => {
+        return clazzList.map((item) => {
+            return {
+                label: item.name,
+                value: item.id
+            }
+        });
+    }
     // ------------------------------------------------------------
 
     return (
         <Card>
-            <h2>员工管理</h2>
+            <h2>学员管理</h2>
             {/* 全局异常处理提示message */}
             {contextHolder}
             {/* 条件查询的条件筛选面板 */}
             <QueryFilter defaultCollapsed={false} split span={6.5} onFinish={handleQuery} onReset={handleReset}>
-                <ProFormText name="name" label="姓名" placeholder='请输入员工姓名' />
+                <ProFormText name="name" label="姓名" placeholder='请输入学生姓名' />
                 <ProFormSelect
                     placeholder='请选择'
                     width="xs"
                     options={[
-                        {
-                            value: '1',
-                            label: '男',
-                        },
-                        {
-                            value: '2',
-                            label: '女',
-                        },
+                        { label: '初中', value: 1 },
+                        { label: '高中', value: 2 },
+                        { label: '大专', value: 3 },
+                        { label: '本科', value: 4 },
+                        { label: '硕士', value: 5 },
+                        { label: '博士', value: 6 },
                     ]}
-                    name="gender"
-                    label="性别"
+                    name="degree"
+                    label="最高学历"
                 />
-                <ProFormDateRangePicker
-                    placeholder={['开始日期', '结束日期']}
-                    width="md"
-                    name={['contract', 'createTime']}
-                    label="入职时间"
+                <ProFormSelect
+                    placeholder='请选择'
+                    width="xs"
+                    options={getClazzOption(allClazz)}
+                    name="clazzId"
+                    label="所属班级"
                 />
             </QueryFilter>
             <Modal
@@ -783,7 +806,7 @@ const studentManagement = () => {
                 </Form.Item>
             </Modal>
             <Flex align="center" gap="middle">
-                <Button onClick={() => setOpen(true)}>新增员工</Button>
+                <Button onClick={() => setOpen(true)}>新增学员</Button>
                 <Button type="primary" onClick={deleteBatch} disabled={!hasSelected} loading={deleteLoading}>
                     批量删除
                 </Button>
@@ -807,4 +830,4 @@ const studentManagement = () => {
     );
 }
 
-export default studentManagement;
+export default StudentManagement;
