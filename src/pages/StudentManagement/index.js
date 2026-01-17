@@ -20,7 +20,7 @@ import {
 } from '@ant-design/pro-components';
 import isNonNullable from '@/utils/isNonNullable';
 
-const EmpManagement = () => {
+const studentManagement = () => {
     const { rows, total, queryReturn, result } = useSelector(state => state.emp);
     const dispatch = useDispatch();
     // 删除员工时选中的员工的id
@@ -807,4 +807,4 @@ const EmpManagement = () => {
     );
 }
 
-export default EmpManagement;
+export default studentManagement;

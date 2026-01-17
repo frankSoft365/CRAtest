@@ -74,9 +74,14 @@ const deleteEmpByIds = (ids, tableParams) => {
 
 const addEmp = (emp, tableParams) => {
     return async (dispatch) => {
-        await request.post('http://localhost:8080/emps', emp);
+        const res = await request.post('http://localhost:8080/emps', emp);
         console.log('已发送add请求');
-        dispatch(defaultFetchList(tableParams));
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(defaultFetchList(tableParams));
+        }
     }
 }
 

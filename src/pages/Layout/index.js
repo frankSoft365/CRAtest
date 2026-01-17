@@ -31,11 +31,11 @@ const items = [
         getItem('学员信息统计', '7')
     ]),
 ];
-// Map menu keys to route paths
+
 const keyToPath = {
     '1': '/',
     '2': '/clazzManagement',
-    '3': '',
+    '3': '/studentManagement',
     '4': '/deptManagement',
     '5': '/empManagement',
     '6': '/empInfoStats',

@@ -1,4 +1,4 @@
-export default function Index() {
+export default function FrontPage() {
     return (
         <div>
             this is index

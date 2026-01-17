@@ -46,28 +46,36 @@ const defaultFetchList = (tableParams) => {
     };
 };
 
-const deleteEmpByIds = (ids, tableParams) => {
+const deleteClazzById = (id, tableParams) => {
     return async (dispatch) => {
-        const params = toURLSearchParams(ids).toString();
-        console.log("url参数 : ", params);
-        await request.delete(`http://localhost:8080/emps?${params}`);
+        const res = await request.delete(`http://localhost:8080/clazzs/${id}`);
         console.log('已发送delete请求');
-        dispatch(defaultFetchList(tableParams));
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(defaultFetchList(tableParams));
+        }
     }
 }
 
 const addClazz = (clazz, tableParams) => {
     return async (dispatch) => {
-        await request.post('http://localhost:8080/clazzs', clazz);
+        const res = await request.post('http://localhost:8080/clazzs', clazz);
         console.log('已发送add请求');
-        dispatch(defaultFetchList(tableParams));
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(defaultFetchList(tableParams));
+        }
     }
 }
 
-// 设置异常处理 更改员工信息
-const updateEmp = (emp, tableParams) => {
+// 设置异常处理 更改班级信息
+const updateClazz = (clazz, tableParams) => {
     return async (dispatch) => {
-        const res = await request.put('http://localhost:8080/emps', emp);
+        const res = await request.put('http://localhost:8080/clazzs', clazz);
         console.log('已发送update请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -82,8 +90,8 @@ const updateEmp = (emp, tableParams) => {
 const getQueryReturnById = (id) => {
     return async (dispatch) => {
         console.log('发送查询回显请求！');
-        const res = await request.get('http://localhost:8080/emps/' + id);
-        console.log('查询回显获取到员工信息：', res.data.data);
+        const res = await request.get('http://localhost:8080/clazzs/' + id);
+        console.log('查询回显获取到班级信息：', res.data.data);
         const code = res.data.code;
         if (code === 1) {
             dispatch(setQueryReturn(res.data.data));
@@ -115,9 +123,9 @@ const reducer = clazzReducer.reducer;
 
 export {
     defaultFetchList,
-    deleteEmpByIds,
+    deleteClazzById,
     addClazz,
-    updateEmp,
+    updateClazz,
     getQueryReturnById,
     setQueryReturn,
     setResult,

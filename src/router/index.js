@@ -1,11 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "../pages/Layout";
 import Login from "../pages/Login";
-import Index from "@/pages/Index";
+import FrontPage from "@/pages/FrontPage";
 import DeptManagement from "@/pages/DeptManagement";
 import EmpManagement from "@/pages/EmpManagement";
 import EmpInfoStats from "@/pages/EmpInfoStats";
 import ClazzManagement from "@/pages/ClazzManagement";
+import StudentManagement from "@/pages/StudentManagement";
 
 const router = createBrowserRouter([
     {
@@ -14,7 +15,7 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <Index />
+                element: <FrontPage />
             },
             {
                 path: '/deptManagement',
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
             {
                 path: '/clazzManagement',
                 element: <ClazzManagement />
+            },
+            {
+                path: '/studentManagement',
+                element: <StudentManagement />
             },
         ]
     },
