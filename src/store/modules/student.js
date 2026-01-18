@@ -13,7 +13,6 @@ const studentReducer = createSlice({
         },
         empJobStats: [],
         empGenderStats: [],
-        allEmp: [],
     },
     reducers: {
         setRows(state, action) {
@@ -34,9 +33,6 @@ const studentReducer = createSlice({
         setEmpGenderStats(state, action) {
             state.empGenderStats = action.payload;
         },
-        setAllEmp(state, action) {
-            state.allEmp = action.payload;
-        },
     }
 });
 const { setRows,
@@ -45,7 +41,6 @@ const { setRows,
     setResult,
     setEmpJobStats,
     setEmpGenderStats,
-    setAllEmp
 } = studentReducer.actions;
 // 设置异常处理 获取员工列表
 const defaultFetchList = (tableParams) => {
@@ -63,13 +58,18 @@ const defaultFetchList = (tableParams) => {
     };
 };
 
-const deleteEmpByIds = (ids, tableParams) => {
+const deleteStuByIds = (ids, tableParams) => {
     return async (dispatch) => {
-        const params = toURLSearchParams(ids).toString();
+        const params = ids.join(',');
         console.log("url参数 : ", params);
-        await request.delete(`http://localhost:8080/emps?${params}`);
+        const res = await request.delete(`http://localhost:8080/students/${params}`);
         console.log('已发送delete请求');
-        dispatch(defaultFetchList(tableParams));
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(defaultFetchList(tableParams));
+        }
     }
 }
 
@@ -87,9 +87,9 @@ const addStudent = (student, tableParams) => {
 }
 
 // 设置异常处理 更改员工信息
-const updateEmp = (emp, tableParams) => {
+const updateStudent = (stu, tableParams) => {
     return async (dispatch) => {
-        const res = await request.put('http://localhost:8080/emps', emp);
+        const res = await request.put('http://localhost:8080/students', stu);
         console.log('已发送update请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -100,12 +100,12 @@ const updateEmp = (emp, tableParams) => {
     }
 }
 
-// 设置异常处理 获取查询回显的员工信息
+// 设置异常处理 获取查询回显的学员信息
 const getQueryReturnById = (id) => {
     return async (dispatch) => {
         console.log('发送查询回显请求！');
-        const res = await request.get('http://localhost:8080/emps/' + id);
-        console.log('查询回显获取到员工信息：', res.data.data);
+        const res = await request.get('http://localhost:8080/students/' + id);
+        console.log('查询回显获取到学员信息：', res.data.data);
         const code = res.data.code;
         if (code === 1) {
             dispatch(setQueryReturn(res.data.data));
@@ -133,30 +133,18 @@ const getEmpGenderData = () => {
     }
 }
 
-// 查询所有员工
-const getAllEmp = () => {
-    return async (dispatch) => {
-        const res = await request.get('http://localhost:8080/emps/list');
-        const code = res.data.code;
-        if (code === 1) {
-            dispatch(setAllEmp(res.data.data));
-        }
-    }
-}
-
 const reducer = studentReducer.reducer;
 
 export {
     defaultFetchList,
-    deleteEmpByIds,
+    deleteStuByIds,
     addStudent,
-    updateEmp,
+    updateStudent,
     getQueryReturnById,
     setQueryReturn,
     setResult,
     getEmpJobData,
     getEmpGenderData,
-    getAllEmp,
 };
 
 export default reducer;

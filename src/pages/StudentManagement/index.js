@@ -1,13 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Card, Input, Space, Table, Flex, Form, Modal, InputNumber, DatePicker, Select, Upload, message } from 'antd';
+import { Button, Card, Input, Space, Table, Flex, Form, Modal, DatePicker, Select, message } from 'antd';
 import dayjs from 'dayjs';
-import { LoadingOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     defaultFetchList,
-    deleteEmpByIds,
+    deleteStuByIds,
     addStudent,
-    updateEmp,
+    updateStudent,
     getQueryReturnById,
     setQueryReturn,
     setResult
@@ -19,6 +18,7 @@ import {
     ProFormSelect
 } from '@ant-design/pro-components';
 import isNonNullable from '@/utils/isNonNullable';
+import { toURLSearchParams } from '@/utils';
 
 const StudentManagement = () => {
     const { rows, total, queryReturn, result } = useSelector(state => state.student);
@@ -138,7 +138,7 @@ const StudentManagement = () => {
         }
         return result;
     }, []);
-    // 分页查询员工列表 默认 第一页 每页10条数据
+    // 分页查询学员列表 默认 第一页 每页10条数据
     useEffect(() => {
         dispatch(defaultFetchList(getParams(tableParams)));
         dispatch(getAllClazz());
@@ -149,18 +149,22 @@ const StudentManagement = () => {
     ]);
     // ------------------------------------------------------------
 
-    // 删除员工
-    // 批量删除员工
+    // 删除学员
+    // 批量删除
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const [isModalOpenBatchDel, setIsModalOpenBatchDel] = useState(false);
     const deleteBatch = () => {
         setDeleteLoading(true);
-        // ajax request after empty completing
-        dispatch(deleteEmpByIds({ ids: selectedRowKeys }, getParams(tableParams)));
+        dispatch(deleteStuByIds(selectedRowKeys, getParams(tableParams)));
+        setIsModalOpenBatchDel(false);
         setTimeout(() => {
             setSelectedRowKeys([]);
             setDeleteLoading(false);
         }, 500);
+    };
+    const handleCancelBatchDel = () => {
+        setIsModalOpenBatchDel(false);
     };
     const onSelectChange = newSelectedRowKeys => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
@@ -172,16 +176,16 @@ const StudentManagement = () => {
         preserveSelectedRowKeys: true,
     };
     const hasSelected = selectedRowKeys.length > 0;
-    // 删除员工确认框开合状态
+    // 删除学员确认框开合状态
     const [isModalOpenDel, setIsModalOpenDel] = useState(false);
-    // 删除员工确认框
+    // 删除学员确认框
     const showModalDel = (id) => {
         setIsModalOpenDel(true);
         setSelectedId(id);
     };
     const handleOkDel = () => {
         setIsModalOpenDel(false);
-        dispatch(deleteEmpByIds({ ids: selectedId }, getParams(tableParams)));
+        dispatch(deleteStuByIds([selectedId], getParams(tableParams)));
         setSelectedId(null);
         setSelectedRowKeys([]);
     };
@@ -197,6 +201,8 @@ const StudentManagement = () => {
     const [editOpen, setEditOpen] = useState(false);
     const handleUpdateClick = (id) => {
         dispatch(getQueryReturnById(id));
+        // 获取最新所有班级列表
+        dispatch(getAllClazz());
         setEditOpen(true);
         setSelectedId(id);
     };
@@ -208,59 +214,57 @@ const StudentManagement = () => {
     const onUpdate = values => {
         const newValues = getFormParams(values);
         newValues.id = selectedId;
-        console.log('更改后员工的信息是：', newValues);
-        dispatch(updateEmp(newValues, getParams(tableParams)));
+        console.log('更改后学员的信息是：', newValues);
+        dispatch(updateStudent(newValues, getParams(tableParams)));
         setEditOpen(false);
         dispatch(setQueryReturn(null));
         setSelectedId(null);
     };
-    const analyzeParams = useCallback((emp) => {
-        if (emp === null) {
+    const analyzeParams = useCallback((stu) => {
+        if (stu === null) {
             return null;
         }
         const formParams = {};
-        const username = emp.username;
-        const name = emp.name;
-        const gender = emp.gender;
-        const phone = emp.phone;
-        const job = emp.job;
-        const salary = emp.salary;
-        const deptId = emp.deptId;
-        const entryTime = emp.entryTime;
-        const empExprs = emp.exprList;
-        if (isNonNullable(username)) {
-            formParams.username = username;
-        };
+        const name = stu.name;
+        const no = stu.no;
+        const gender = stu.gender;
+        const phone = stu.phone;
+        const idCard = stu.idCard;
+        const isCollege = stu.isCollege;
+        const address = stu.address;
+        const degree = stu.degree;
+        const graduationDate = stu.graduationDate;
+        const clazzId = stu.clazzId;
         if (isNonNullable(name)) {
             formParams.name = name;
         };
+        if (isNonNullable(no)) {
+            formParams.no = no;
+        };
         if (isNonNullable(gender)) {
-            formParams.gender = String(gender);
+            formParams.gender = gender;
         };
         if (isNonNullable(phone)) {
             formParams.phone = phone;
         };
-        if (isNonNullable(job)) {
-            formParams.job = String(job);
+        if (isNonNullable(idCard)) {
+            formParams.idCard = idCard;
         };
-        if (isNonNullable(salary)) {
-            formParams.salary = salary;
+        if (isNonNullable(isCollege)) {
+            formParams.isCollege = isCollege;
         };
-        if (isNonNullable(deptId)) {
-            formParams.deptId = String(deptId);
+        if (isNonNullable(address)) {
+            formParams.address = address;
         };
-        if (isNonNullable(entryTime)) {
-            formParams.entryTime = dayjs(entryTime);
+        if (isNonNullable(degree)) {
+            formParams.degree = degree;
         };
-        if (isNonNullable(empExprs)) {
-            const newEmpExprs = empExprs.map((expr) => {
-                return {
-                    ...expr,
-                    date: [dayjs(expr.begin), dayjs(expr.end)]
-                };
-            });
-            formParams.empExprs = newEmpExprs;
-        }
+        if (isNonNullable(graduationDate)) {
+            formParams.graduationDate = dayjs(graduationDate);
+        };
+        if (isNonNullable(clazzId)) {
+            formParams.clazzId = clazzId;
+        };
         return formParams;
     }, []);
     useEffect(() => {
@@ -269,15 +273,6 @@ const StudentManagement = () => {
         }
     }, [editOpen, editForm, queryReturn, analyzeParams]);
 
-    // 列表的列
-    // // 根据index显示对应的职位，1 班主任 2 讲师 3 学工主管 4 教研主管 5 咨询师
-    // const job = {
-    //     1: '班主任',
-    //     2: '讲师',
-    //     3: '学工主管',
-    //     4: '教研主管',
-    //     5: '咨询师'
-    // }
     //最高学历, 1: 初中, 2: 高中 , 3: 大专 , 4: 本科 , 5: 硕士 , 6: 博士
     const degreeOption = {
         1: '初中',
@@ -307,6 +302,7 @@ const StudentManagement = () => {
             title: '性别',
             dataIndex: 'gender',
             key: 'gender',
+            render: (_, record) => record.gender === 1 ? '男' : '女'
         },
         {
             title: '手机号',
@@ -403,6 +399,7 @@ const StudentManagement = () => {
                     label="所属班级"
                 />
             </QueryFilter>
+            {/* 单独删除学员确认框 */}
             <Modal
                 title="删除员工"
                 closable={{ 'aria-label': 'Custom Close Button' }}
@@ -412,22 +409,30 @@ const StudentManagement = () => {
             >
                 <p>确认要删除该员工吗？</p>
             </Modal>
-            {/* 更改员工的登记面板 */}
+            {/* 批量删除学员确认框 */}
             <Modal
-                open={open}
-                title="新增学员"
+                title="删除员工"
+                closable={{ 'aria-label': 'Custom Close Button' }}
+                open={isModalOpenBatchDel}
+                onOk={deleteBatch}
+                onCancel={handleCancelBatchDel}
+            >
+                <p>确认要删除该员工吗？</p>
+            </Modal>
+            {/* 更改学员的登记面板 */}
+            <Modal
+                open={editOpen}
+                title="更改学员"
                 okText="确定"
                 cancelText="取消"
                 okButtonProps={{ autoFocus: true, htmlType: 'submit' }}
-                onCancel={() => {
-                    setOpen(false);
-                }}
+                onCancel={handleCancelUpdateModal}
                 modalRender={dom => (
                     <Form
                         layout="horizontal"
-                        form={addForm}
+                        form={editForm}
                         name="form_in_modal_add"
-                        onFinish={values => onCreate(values)}
+                        onFinish={values => onUpdate(values)}
                         validateTrigger='onBlur'
                         style={{ width: 850 }}
                     >
@@ -453,7 +458,7 @@ const StudentManagement = () => {
                         name="gender"
                         rules={[{ required: true, message: '请输入性别!' }]}
                     >
-                        <Select placeholder='请选择' options={[{ label: '男', value: '1' }, { label: '女', value: '2' }]} style={{ width: 100 }} />
+                        <Select placeholder='请选择' options={[{ label: '男', value: 1 }, { label: '女', value: 2 }]} style={{ width: 100 }} />
                     </Form.Item>
                     <Form.Item
                         label="手机号"
@@ -639,7 +644,7 @@ const StudentManagement = () => {
             </Modal>
             <Flex align="center" gap="middle">
                 <Button onClick={onClickAddStudent}>新增学员</Button>
-                <Button type="primary" onClick={deleteBatch} disabled={!hasSelected} loading={deleteLoading}>
+                <Button type="primary" onClick={() => setIsModalOpenBatchDel(true)} disabled={!hasSelected} loading={deleteLoading}>
                     批量删除
                 </Button>
                 {hasSelected ? `批量删除选中的 ${selectedRowKeys.length} 项` : null}
