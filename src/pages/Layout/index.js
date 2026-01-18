@@ -39,7 +39,7 @@ const keyToPath = {
     '4': '/deptManagement',
     '5': '/empManagement',
     '6': '/empInfoStats',
-    '7': '',
+    '7': '/stuInfoStats',
 };
 // Map route paths to menu keys
 const pathToKey = Object.entries(keyToPath).reduce((acc, [key, path]) => {

@@ -65,11 +65,11 @@ const EmpManagement = () => {
     const beforeUpload = file => {  // 上传前检验
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
         if (!isJpgOrPng) {
-            message.error('只能上传JPG/PNG格式图片!');
+            messageApi.error('只能上传JPG/PNG格式图片!');
         }
         const isLt2M = file.size / 1024 / 1024 < 2;
         if (!isLt2M) {
-            message.error('图片大小不能超过2MB!');
+            messageApi.error('图片大小不能超过2MB!');
         }
         return isJpgOrPng && isLt2M;
     };

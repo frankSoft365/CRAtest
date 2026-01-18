@@ -11,8 +11,8 @@ const studentReducer = createSlice({
             code: null,
             message: null
         },
-        empJobStats: [],
-        empGenderStats: [],
+        numOfStuInClazzStats: [],
+        stuDegreeStats: [],
     },
     reducers: {
         setRows(state, action) {
@@ -27,20 +27,21 @@ const studentReducer = createSlice({
         setResult(state, action) {
             state.result = action.payload;
         },
-        setEmpJobStats(state, action) {
-            state.empJobStats = action.payload;
+        setNumOfStuInClazzStats(state, action) {
+            state.numOfStuInClazzStats = action.payload;
         },
-        setEmpGenderStats(state, action) {
-            state.empGenderStats = action.payload;
+        setStuDegreeStats(state, action) {
+            state.stuDegreeStats = action.payload;
         },
     }
 });
-const { setRows,
+const {
+    setRows,
     setTotal,
     setQueryReturn,
     setResult,
-    setEmpJobStats,
-    setEmpGenderStats,
+    setNumOfStuInClazzStats,
+    setStuDegreeStats,
 } = studentReducer.actions;
 // 设置异常处理 获取员工列表
 const defaultFetchList = (tableParams) => {
@@ -112,23 +113,25 @@ const getQueryReturnById = (id) => {
         }
     };
 };
-// 获取员工职位人数
-const getEmpJobData = () => {
+
+// 获取班级人数
+const getNumOfStuInClazzData = () => {
     return async (dispatch) => {
-        const res = await request.get('http://localhost:8080/report/empJobData');
+        const res = await request.get('http://localhost:8080/report/studentCountData');
         const code = res.data.code;
         if (code === 1) {
-            dispatch(setEmpJobStats(res.data.data));
+            dispatch(setNumOfStuInClazzStats(res.data.data));
         }
     }
 }
-// 获取员工性别人数
-const getEmpGenderData = () => {
+
+// 学员学历统计
+const getStuDegreeData = () => {
     return async (dispatch) => {
-        const res = await request.get('http://localhost:8080/report/empGenderData');
+        const res = await request.get('http://localhost:8080/report/studentDegreeData');
         const code = res.data.code;
         if (code === 1) {
-            dispatch(setEmpGenderStats(res.data.data));
+            dispatch(setStuDegreeStats(res.data.data));
         }
     }
 }
@@ -157,8 +160,8 @@ export {
     getQueryReturnById,
     setQueryReturn,
     setResult,
-    getEmpJobData,
-    getEmpGenderData,
+    getNumOfStuInClazzData,
+    getStuDegreeData,
     violationAction,
 };
 

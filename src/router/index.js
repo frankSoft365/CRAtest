@@ -7,6 +7,7 @@ import EmpManagement from "@/pages/EmpManagement";
 import EmpInfoStats from "@/pages/EmpInfoStats";
 import ClazzManagement from "@/pages/ClazzManagement";
 import StudentManagement from "@/pages/StudentManagement";
+import StuInfoStats from "@/pages/StuInfoStats";
 
 const router = createBrowserRouter([
     {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
             {
                 path: '/studentManagement',
                 element: <StudentManagement />
+            },
+            {
+                path: '/stuInfoStats',
+                element: <StuInfoStats />
             },
         ]
     },

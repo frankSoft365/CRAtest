@@ -19,7 +19,6 @@ import {
     ProFormSelect
 } from '@ant-design/pro-components';
 import isNonNullable from '@/utils/isNonNullable';
-import { toURLSearchParams } from '@/utils';
 
 const StudentManagement = () => {
     const { rows, total, queryReturn, result } = useSelector(state => state.student);

@@ -1,7 +1,7 @@
 export default function FrontPage() {
     return (
         <div>
-            this is index
+            <h1>这是主页</h1>
         </div>
     );
 }
