@@ -9,7 +9,8 @@ import {
     updateStudent,
     getQueryReturnById,
     setQueryReturn,
-    setResult
+    setResult,
+    violationAction,
 } from '@/store/modules/student';
 import { getAllClazz } from '@/store/modules/clazz';
 import {
@@ -24,7 +25,7 @@ const StudentManagement = () => {
     const { rows, total, queryReturn, result } = useSelector(state => state.student);
     const { allClazz } = useSelector(state => state.clazz);
     const dispatch = useDispatch();
-    // 删除、修改时选中学员的id
+    // 删除、修改、违纪处理时选中学员的id
     const [selectedId, setSelectedId] = useState(null);
     // 初始的表单参数
     const [tableParams, setTableParams] = useState({
@@ -272,6 +273,30 @@ const StudentManagement = () => {
             editForm.setFieldsValue(analyzeParams(queryReturn));
         }
     }, [editOpen, editForm, queryReturn, analyzeParams]);
+    // ------------------------------------------------------------
+
+    // 违纪扣分
+    // 扣分增量
+    const [deltaViolationScore, setDeltaViolationScore] = useState(null);
+    // 填写框打开与否状态
+    const [isModalOpenViolation, setIsMadalOpenViolation] = useState(false);
+    const showModalViolation = (id) => {
+        setIsMadalOpenViolation(true);
+        setSelectedId(id);
+    };
+    const handleCancelViolation = () => {
+        setIsMadalOpenViolation(false);
+        setSelectedId(null);
+        setDeltaViolationScore(null);
+    };
+    const handleOkViolation = () => {
+        // 将扣分数值传给后端
+        dispatch(violationAction(selectedId, deltaViolationScore, getParams(tableParams)))
+        setIsMadalOpenViolation(false);
+        setSelectedId(null);
+        setDeltaViolationScore(null);
+    };
+    // ------------------------------------------------------------
 
     //最高学历, 1: 初中, 2: 高中 , 3: 大专 , 4: 本科 , 5: 硕士 , 6: 博士
     const degreeOption = {
@@ -343,7 +368,7 @@ const StudentManagement = () => {
                         修改
                     </span>
                     <span
-                        onClick={() => showModalDel(record.id)}
+                        onClick={() => showModalViolation(record.id)}
                         style={{ color: 'goldenrod', cursor: 'pointer' }}
                     >
                         违纪
@@ -528,7 +553,16 @@ const StudentManagement = () => {
                     </Form.Item>
                 </Flex>
             </Modal>
-
+            {/* 违纪扣分填写框 */}
+            <Modal
+                title="请输入违纪扣分"
+                closable={{ 'aria-label': 'Custom Close Button' }}
+                open={isModalOpenViolation}
+                onOk={handleOkViolation}
+                onCancel={handleCancelViolation}
+            >
+                <Input value={deltaViolationScore} onChange={(e) => setDeltaViolationScore(e.target.value)} />
+            </Modal>
             {/* 新增学员的登记面板 */}
             <Modal
                 open={open}

@@ -133,6 +133,20 @@ const getEmpGenderData = () => {
     }
 }
 
+// 违纪处理 将选择的学生id和扣分数值传给后端
+const violationAction = (id, score, tableParams) => {
+    return async (dispatch) => {
+        const res = await request.put(`http://localhost:8080/students/violation/${id}/${score}`);
+        console.log('已发送违纪处理请求');
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(defaultFetchList(tableParams));
+        }
+    }
+}
+
 const reducer = studentReducer.reducer;
 
 export {
@@ -145,6 +159,7 @@ export {
     setResult,
     getEmpJobData,
     getEmpGenderData,
+    violationAction,
 };
 
 export default reducer;
