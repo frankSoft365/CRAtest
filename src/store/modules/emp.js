@@ -66,9 +66,14 @@ const deleteEmpByIds = (ids, tableParams) => {
     return async (dispatch) => {
         const params = toURLSearchParams(ids).toString();
         console.log("url参数 : ", params);
-        await request.delete(`http://localhost:8080/emps?${params}`);
+        const res = await request.delete(`http://localhost:8080/emps?${params}`);
         console.log('已发送delete请求');
-        dispatch(defaultFetchList(tableParams));
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(defaultFetchList(tableParams));
+        }
     }
 }
 

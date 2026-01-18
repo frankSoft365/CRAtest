@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Card, Input, Space, Table, Flex, Form, Modal, DatePicker, Select, message } from 'antd';
+import { Button, Card, Input, Space, Table, Flex, Form, Modal, DatePicker, Select, message, InputNumber } from 'antd';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -560,7 +560,7 @@ const StudentManagement = () => {
                 onOk={handleOkViolation}
                 onCancel={handleCancelViolation}
             >
-                <Input value={deltaViolationScore} onChange={(e) => setDeltaViolationScore(e.target.value)} />
+                <InputNumber maxLength={3} value={deltaViolationScore} onChange={value => setDeltaViolationScore(value > 255 ? 255 : value)} />
             </Modal>
             {/* 新增学员的登记面板 */}
             <Modal

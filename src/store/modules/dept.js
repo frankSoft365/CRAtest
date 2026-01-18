@@ -5,7 +5,11 @@ const deptReducer = createSlice({
     name: "dept",
     initialState: {
         list: [],
-        queryReturn: null
+        queryReturn: null,
+        result: {
+            code: null,
+            message: null
+        },
     },
     reducers: {
         setList(state, action) {
@@ -13,41 +17,65 @@ const deptReducer = createSlice({
         },
         setQueryReturn(state, action) {
             state.queryReturn = action.payload;
-        }
+        },
+        setResult(state, action) {
+            state.result = action.payload;
+        },
     }
 });
 
-const { setList, setQueryReturn } = deptReducer.actions;
+const { setList, setQueryReturn, setResult } = deptReducer.actions;
 
 const fetchList = () => {
     return async (dispatch) => {
         const res = await request.get('http://localhost:8080/depts');
         console.log(res.data.data);
-        dispatch(setList(res.data.data));
+        const code = res.data.code;
+        const data = res.data.data;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(setList(data));
+        }
     };
 };
 
 const deleteDeptById = (id) => {
     return async (dispatch) => {
-        await request.delete('http://localhost:8080/depts?id=' + id);
+        const res = await request.delete('http://localhost:8080/depts?id=' + id);
         console.log('已发送delete请求');
-        dispatch(fetchList());
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(fetchList());
+        }
     }
 }
 
 const addDept = (dept) => {
     return async (dispatch) => {
-        await request.post('http://localhost:8080/depts', dept);
+        const res = await request.post('http://localhost:8080/depts', dept);
         console.log('已发送add请求');
-        dispatch(fetchList());
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(fetchList());
+        }
     }
 }
 
 const updateDept = (dept) => {
     return async (dispatch) => {
-        await request.put('http://localhost:8080/depts', dept);
+        const res = await request.put('http://localhost:8080/depts', dept);
         console.log('已发送update请求');
-        dispatch(fetchList());
+        const code = res.data.code;
+        const message = res.data.msg;
+        dispatch(setResult({ code: code, message: message }));
+        if (code === 1) {
+            dispatch(fetchList());
+        }
     }
 }
 
@@ -55,13 +83,16 @@ const getDeptNameById = (id) => {
     return async (dispatch) => {
         const res = await request.get('http://localhost:8080/depts/' + id);
         console.log(res.data.data);
-        dispatch(setQueryReturn(res.data.data));
+        const code = res.data.code;
+        if (code === 1) {
+            dispatch(setQueryReturn(res.data.data));
+        }
     };
 };
 
 
 const reducer = deptReducer.reducer;
 
-export { fetchList, deleteDeptById, addDept, updateDept, getDeptNameById };
+export { fetchList, deleteDeptById, addDept, updateDept, getDeptNameById, setResult };
 
 export default reducer;

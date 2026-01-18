@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Input, Space, Table, Modal } from 'antd';
+import { Button, Card, Input, Space, Table, Modal, message } from 'antd';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchList, deleteDeptById, addDept, updateDept, getDeptNameById } from '@/store/modules/dept';
+import { fetchList, deleteDeptById, addDept, updateDept, getDeptNameById, setResult } from '@/store/modules/dept';
 
 const DeptManagement = () => {
-    const { list, queryReturn } = useSelector(state => state.dept);
+    const { list, queryReturn, result } = useSelector(state => state.dept);
     // 新增部门确认框开合状态
     const [isModalOpen, setIsModalOpen] = useState(false);
     // 修改部门确认框开合状态
@@ -24,6 +24,18 @@ const DeptManagement = () => {
             setDeptName(queryReturn.name);
         }
     }, [queryReturn]);
+
+    // 异常全局处理
+    const [messageApi, contextHolder] = message.useMessage();
+    useEffect(() => {
+        if (result.code !== null && result.message !== null) {
+            messageApi.open({
+                type: result.code === 1 ? 'success' : 'error',
+                content: result.message,
+                onClose: () => dispatch(setResult({ code: null, message: null })),
+            });
+        }
+    }, [result, messageApi, dispatch]);
 
     // 新增部门的确认框
     const showModal = () => {
@@ -128,6 +140,8 @@ const DeptManagement = () => {
     return (
         <Card>
             <h2>部门管理</h2>
+            {/* 全局异常处理提示message */}
+            {contextHolder}
             <Button onClick={showModal}>新增部门</Button>
             <Modal
                 title="新增部门"
