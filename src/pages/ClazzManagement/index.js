@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Card, Input, Space, Table, Flex, Form, Modal, DatePicker, Select, Upload, message } from 'antd';
+import { Button, Card, Input, Space, Table, Flex, Form, Modal, DatePicker, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -17,7 +17,7 @@ import {
     ProFormText,
     QueryFilter,
 } from '@ant-design/pro-components';
-import isNonNullable from '@/utils/isNonNullable';
+import { isNonNullable } from '@/utils';
 
 const ClazzManagement = () => {
     const { rows, total, queryReturn, result } = useSelector(state => state.clazz);

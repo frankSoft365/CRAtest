@@ -8,11 +8,16 @@ import EmpInfoStats from "@/pages/EmpInfoStats";
 import ClazzManagement from "@/pages/ClazzManagement";
 import StudentManagement from "@/pages/StudentManagement";
 import StuInfoStats from "@/pages/StuInfoStats";
+import { AuthRoute } from "@/components/AuthRoute";
 
 const router = createBrowserRouter([
     {
+        path: '/login',
+        element: <Login />
+    },
+    {
         path: '/',
-        element: <Layout />,
+        element: <AuthRoute><Layout /></AuthRoute>,
         children: [
             {
                 index: true,
@@ -44,10 +49,6 @@ const router = createBrowserRouter([
             },
         ]
     },
-    {
-        path: '/login',
-        element: <Login />
-    }
 ]);
 
 export default router;

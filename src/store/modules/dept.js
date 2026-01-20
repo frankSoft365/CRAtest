@@ -28,7 +28,7 @@ const { setList, setQueryReturn, setResult } = deptReducer.actions;
 
 const fetchList = () => {
     return async (dispatch) => {
-        const res = await request.get('http://localhost:8080/depts');
+        const res = await request.get('/depts');
         console.log(res.data.data);
         const code = res.data.code;
         const data = res.data.data;
@@ -42,7 +42,7 @@ const fetchList = () => {
 
 const deleteDeptById = (id) => {
     return async (dispatch) => {
-        const res = await request.delete('http://localhost:8080/depts?id=' + id);
+        const res = await request.delete(`/depts?id=${id}`);
         console.log('已发送delete请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -55,7 +55,7 @@ const deleteDeptById = (id) => {
 
 const addDept = (dept) => {
     return async (dispatch) => {
-        const res = await request.post('http://localhost:8080/depts', dept);
+        const res = await request.post('/depts', dept);
         console.log('已发送add请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -68,7 +68,7 @@ const addDept = (dept) => {
 
 const updateDept = (dept) => {
     return async (dispatch) => {
-        const res = await request.put('http://localhost:8080/depts', dept);
+        const res = await request.put('/depts', dept);
         console.log('已发送update请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -81,7 +81,7 @@ const updateDept = (dept) => {
 
 const getDeptNameById = (id) => {
     return async (dispatch) => {
-        const res = await request.get('http://localhost:8080/depts/' + id);
+        const res = await request.get(`/depts/${id}`);
         console.log(res.data.data);
         const code = res.data.code;
         if (code === 1) {

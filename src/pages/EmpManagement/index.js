@@ -18,7 +18,7 @@ import {
     QueryFilter,
     ProFormSelect
 } from '@ant-design/pro-components';
-import isNonNullable from '@/utils/isNonNullable';
+import { isNonNullable } from '@/utils';
 
 const EmpManagement = () => {
     const { rows, total, queryReturn, result } = useSelector(state => state.emp);

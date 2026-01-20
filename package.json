@@ -13,6 +13,7 @@
     "antd": "^5.29.3",
     "axios": "^1.13.2",
     "dayjs": "^1.11.19",
+    "normalize.css": "^8.0.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-redux": "^9.2.0",

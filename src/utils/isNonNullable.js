@@ -1,4 +1,4 @@
 // 判断参数是否为null undefined
-export default function isNonNullable(val) {
+export function isNonNullable(val) {
     return val !== undefined && val !== null;
 }

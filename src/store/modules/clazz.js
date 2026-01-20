@@ -38,7 +38,7 @@ const { setRows, setTotal, setQueryReturn, setResult, setAllClazz } = clazzReduc
 const defaultFetchList = (tableParams) => {
     return async (dispatch) => {
         const params = toURLSearchParams(tableParams).toString();
-        const res = await request.get(`http://localhost:8080/clazzs?${params}`);
+        const res = await request.get(`/clazzs?${params}`);
         const code = res.data.code;
         const data = res.data.data;
         const message = res.data.msg;
@@ -52,7 +52,7 @@ const defaultFetchList = (tableParams) => {
 
 const deleteClazzById = (id, tableParams) => {
     return async (dispatch) => {
-        const res = await request.delete(`http://localhost:8080/clazzs/${id}`);
+        const res = await request.delete(`/clazzs/${id}`);
         console.log('已发送delete请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -65,7 +65,7 @@ const deleteClazzById = (id, tableParams) => {
 
 const addClazz = (clazz, tableParams) => {
     return async (dispatch) => {
-        const res = await request.post('http://localhost:8080/clazzs', clazz);
+        const res = await request.post('/clazzs', clazz);
         console.log('已发送add请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -79,7 +79,7 @@ const addClazz = (clazz, tableParams) => {
 // 设置异常处理 更改班级信息
 const updateClazz = (clazz, tableParams) => {
     return async (dispatch) => {
-        const res = await request.put('http://localhost:8080/clazzs', clazz);
+        const res = await request.put('/clazzs', clazz);
         console.log('已发送update请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -94,7 +94,7 @@ const updateClazz = (clazz, tableParams) => {
 const getQueryReturnById = (id) => {
     return async (dispatch) => {
         console.log('发送查询回显请求！');
-        const res = await request.get('http://localhost:8080/clazzs/' + id);
+        const res = await request.get(`/clazzs/${id}`);
         console.log('查询回显获取到班级信息：', res.data.data);
         const code = res.data.code;
         if (code === 1) {
@@ -125,7 +125,7 @@ const getQueryReturnById = (id) => {
 // 查询所有班级
 const getAllClazz = () => {
     return async (dispatch) => {
-        const res = await request.get('http://localhost:8080/clazzs/list');
+        const res = await request.get('/clazzs/list');
         const code = res.data.code;
         if (code === 1) {
             dispatch(setAllClazz(res.data.data));

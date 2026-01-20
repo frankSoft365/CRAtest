@@ -1,18 +1,41 @@
-import { Form, Input, Button, Card } from "antd";
+import { Form, Input, Button, Card, message } from "antd";
 import { LockOutlined, MobileOutlined } from '@ant-design/icons';
-import logo from '@/assets/OIP.webp';
+import logo from '@/assets/maple_leaf.jpg';
 import './index.css'
-import { useDispatch } from "react-redux";
-import { fetchLogin } from "@/store/modules/user";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchLogin, setResult } from "@/store/modules/user";
+import { useNavigate } from 'react-router-dom'
+import { useEffect } from "react";
 
 export default function Login() {
+    const { result } = useSelector(state => state.user);
     const dispatch = useDispatch();
-    const onFinish = values => {
+    const navigate = useNavigate();
+    const onFinish = (values) => {
         console.log('Received values of form: ', values);
         dispatch(fetchLogin(values));
     };
+    useEffect(() => {
+        if (result.code === 1) {
+            navigate('/');
+            message.success('登录成功');
+            dispatch(setResult({ code: null, message: null })); // clear result
+        }
+    }, [result, navigate, dispatch]);
+    // 异常全局处理
+    const [messageApi, contextHolder] = message.useMessage();
+    useEffect(() => {
+        if (result.code !== null && result.message !== null) {
+            messageApi.open({
+                type: result.code === 1 ? 'success' : 'error',
+                content: result.message,
+                onClose: () => dispatch(setResult({ code: null, message: null })),
+            });
+        }
+    }, [result, messageApi, dispatch]);
     return (
         <div className="login">
+            {contextHolder}
             <Card className="login-container" >
                 <img className="login-logo" src={logo} alt="" />
                 <Form

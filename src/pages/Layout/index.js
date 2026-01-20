@@ -1,13 +1,15 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     HomeOutlined,
     AppstoreOutlined,
     SettingOutlined,
     BarChartOutlined,
 } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserProfile } from '@/store/modules/user';
 function getItem(label, key, icon, children) {
     return {
         key,
@@ -41,6 +43,16 @@ const keyToPath = {
     '6': '/empInfoStats',
     '7': '/stuInfoStats',
 };
+
+const keyToParent = {
+    '2': 'sub1',
+    '3': 'sub1',
+    '4': 'sub2',
+    '5': 'sub2',
+    '6': 'sub3',
+    '7': 'sub3',
+};
+
 // Map route paths to menu keys
 const pathToKey = Object.entries(keyToPath).reduce((acc, [key, path]) => {
     if (path) acc[path] = key;
@@ -85,12 +97,37 @@ const layoutStyle = {
 };
 
 const LayoutPage = () => {
+    const { userInfo } = useSelector(state => state.user);
     const [collapsed, setCollapsed] = useState(false);
+    const [openKeys, setOpenKeys] = useState([]);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
     // Find the menu key for the current path
     const currentPath = location.pathname;
     const selectedKey = pathToKey[currentPath] ? [pathToKey[currentPath]] : [];
+
+    useEffect(() => {
+        dispatch(fetchUserProfile());
+    }, [dispatch]);
+    // Set openKeys to keep submenu open for selected item
+    useEffect(() => {
+        if (!collapsed && selectedKey.length > 0) {
+            const parent = keyToParent[selectedKey[0]];
+            if (parent) {
+                setOpenKeys([parent]);
+            } else {
+                setOpenKeys([]);
+            }
+        }
+    }, [currentPath, collapsed]);
+
+    // When collapsed, close all submenus
+    useEffect(() => {
+        if (collapsed) {
+            setOpenKeys([]);
+        }
+    }, [collapsed]);
 
     return (
         <Layout style={layoutStyle}>
@@ -98,7 +135,7 @@ const LayoutPage = () => {
                 <span>Tlias智能学习辅助系统</span>
                 <span>
                     <span>退出登录</span>
-                    <span>[宋江]</span>
+                    <span>[{userInfo.name ? userInfo.name : '未登录'}]</span>
                 </span>
             </Header>
             <Layout>
@@ -106,6 +143,8 @@ const LayoutPage = () => {
                     <Menu
                         theme="dark"
                         selectedKeys={selectedKey}
+                        openKeys={openKeys}
+                        onOpenChange={keys => setOpenKeys(keys)}
                         mode="inline"
                         items={items}
                         onClick={(e) => {

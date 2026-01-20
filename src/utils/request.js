@@ -1,13 +1,21 @@
 import axios from "axios";
+import { getToken } from "./token";
 
 const request = axios.create({
-    baseURL: '',
+    baseURL: 'http://localhost:8080',
     timeout: 5000
 });
 
 // Add a request interceptor
 request.interceptors.request.use(function (config) {
     // Do something before request is sent
+    // 注入token
+    const token = getToken();
+    console.log('拦截器中的token : ', token);
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
 }, function (error) {
     // Do something with request error
