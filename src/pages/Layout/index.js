@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Modal } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
@@ -9,7 +9,7 @@ import {
     BarChartOutlined,
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserProfile } from '@/store/modules/user';
+import { fetchUserProfile, clearUserInfo } from '@/store/modules/user';
 function getItem(label, key, icon, children) {
     return {
         key,
@@ -97,6 +97,7 @@ const layoutStyle = {
 };
 
 const LayoutPage = () => {
+    const [isModalOpenExitLogin, setIsModalOpenExitLogin] = useState(false);
     const { userInfo } = useSelector(state => state.user);
     const [collapsed, setCollapsed] = useState(false);
     const [openKeys, setOpenKeys] = useState([]);
@@ -129,12 +130,39 @@ const LayoutPage = () => {
         }
     }, [collapsed]);
 
+    // 点击取消登录
+    const handleClickExitLogin = () => {
+        setIsModalOpenExitLogin(true);
+    }
+    // 点击取消退出登录
+    const handleCancelExitLogin = () => {
+        setIsModalOpenExitLogin(false);
+    }
+    // 确认退出登录
+    const handleOkExitLogin = () => {
+        // 删除token 用户信息
+        dispatch(clearUserInfo());
+        // 确认框关闭
+        setIsModalOpenExitLogin(false);
+        // 导航到登录页面
+        navigate('/login');
+    }
+
     return (
         <Layout style={layoutStyle}>
+            <Modal
+                title="退出登录"
+                closable={{ 'aria-label': 'Custom Close Button' }}
+                open={isModalOpenExitLogin}
+                onOk={handleOkExitLogin}
+                onCancel={handleCancelExitLogin}
+            >
+                <p>确认要退出登录吗？</p>
+            </Modal>
             <Header style={headerStyle}>
                 <span>Tlias智能学习辅助系统</span>
                 <span>
-                    <span>退出登录</span>
+                    <span onClick={handleClickExitLogin} style={{ cursor: 'pointer' }}>退出登录</span>
                     <span>[{userInfo.name ? userInfo.name : '未登录'}]</span>
                 </span>
             </Header>
