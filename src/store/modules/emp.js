@@ -1,6 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { request, toURLSearchParams } from "@/utils";
-
+import { toURLSearchParams } from "@/utils";
+import {
+    add,
+    deleteByIds,
+    getAll,
+    getGenderData,
+    getInfoById,
+    getJobData,
+    getList,
+    update
+} from "@/apis/emp";
 const empReducer = createSlice({
     name: "emp",
     initialState: {
@@ -50,7 +59,7 @@ const { setRows,
 const defaultFetchList = (tableParams) => {
     return async (dispatch) => {
         const params = toURLSearchParams(tableParams).toString();
-        const res = await request.get(`/emps?${params}`);
+        const res = await getList(params);
         const code = res.data.code;
         const data = res.data.data;
         const message = res.data.msg;
@@ -66,7 +75,7 @@ const deleteEmpByIds = (ids, tableParams) => {
     return async (dispatch) => {
         const params = toURLSearchParams(ids).toString();
         console.log("url参数 : ", params);
-        const res = await request.delete(`/emps?${params}`);
+        const res = await deleteByIds(params);
         console.log('已发送delete请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -79,7 +88,7 @@ const deleteEmpByIds = (ids, tableParams) => {
 
 const addEmp = (emp, tableParams) => {
     return async (dispatch) => {
-        const res = await request.post('/emps', emp);
+        const res = await add(emp);
         console.log('已发送add请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -93,7 +102,7 @@ const addEmp = (emp, tableParams) => {
 // 设置异常处理 更改员工信息
 const updateEmp = (emp, tableParams) => {
     return async (dispatch) => {
-        const res = await request.put('/emps', emp);
+        const res = await update(emp);
         console.log('已发送update请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -108,7 +117,7 @@ const updateEmp = (emp, tableParams) => {
 const getQueryReturnById = (id) => {
     return async (dispatch) => {
         console.log('发送查询回显请求！');
-        const res = await request.get(`/emps/${id}`);
+        const res = await getInfoById(id);
         console.log('查询回显获取到员工信息：', res.data.data);
         const code = res.data.code;
         if (code === 1) {
@@ -119,7 +128,7 @@ const getQueryReturnById = (id) => {
 // 获取员工职位人数
 const getEmpJobData = () => {
     return async (dispatch) => {
-        const res = await request.get('/report/empJobData');
+        const res = await getJobData();
         const code = res.data.code;
         if (code === 1) {
             dispatch(setEmpJobStats(res.data.data));
@@ -129,7 +138,7 @@ const getEmpJobData = () => {
 // 获取员工性别人数
 const getEmpGenderData = () => {
     return async (dispatch) => {
-        const res = await request.get('/report/empGenderData');
+        const res = await getGenderData();
         const code = res.data.code;
         if (code === 1) {
             dispatch(setEmpGenderStats(res.data.data));
@@ -140,7 +149,7 @@ const getEmpGenderData = () => {
 // 查询所有员工
 const getAllEmp = () => {
     return async (dispatch) => {
-        const res = await request.get('/emps/list');
+        const res = await getAll();
         const code = res.data.code;
         if (code === 1) {
             dispatch(setAllEmp(res.data.data));

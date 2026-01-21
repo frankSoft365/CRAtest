@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { request, toURLSearchParams } from "@/utils";
+import { toURLSearchParams } from "@/utils";
+import { add, deleteById, getAll, getInfoById, getList, update } from "@/apis/clazz";
 
 const clazzReducer = createSlice({
     name: "clazz",
@@ -38,7 +39,7 @@ const { setRows, setTotal, setQueryReturn, setResult, setAllClazz } = clazzReduc
 const defaultFetchList = (tableParams) => {
     return async (dispatch) => {
         const params = toURLSearchParams(tableParams).toString();
-        const res = await request.get(`/clazzs?${params}`);
+        const res = await getList(params);
         const code = res.data.code;
         const data = res.data.data;
         const message = res.data.msg;
@@ -52,7 +53,7 @@ const defaultFetchList = (tableParams) => {
 
 const deleteClazzById = (id, tableParams) => {
     return async (dispatch) => {
-        const res = await request.delete(`/clazzs/${id}`);
+        const res = await deleteById(id);
         console.log('已发送delete请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -65,7 +66,7 @@ const deleteClazzById = (id, tableParams) => {
 
 const addClazz = (clazz, tableParams) => {
     return async (dispatch) => {
-        const res = await request.post('/clazzs', clazz);
+        const res = await add(clazz);
         console.log('已发送add请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -79,7 +80,7 @@ const addClazz = (clazz, tableParams) => {
 // 设置异常处理 更改班级信息
 const updateClazz = (clazz, tableParams) => {
     return async (dispatch) => {
-        const res = await request.put('/clazzs', clazz);
+        const res = await update(clazz);
         console.log('已发送update请求');
         const code = res.data.code;
         const message = res.data.msg;
@@ -94,7 +95,7 @@ const updateClazz = (clazz, tableParams) => {
 const getQueryReturnById = (id) => {
     return async (dispatch) => {
         console.log('发送查询回显请求！');
-        const res = await request.get(`/clazzs/${id}`);
+        const res = await getInfoById(id);
         console.log('查询回显获取到班级信息：', res.data.data);
         const code = res.data.code;
         if (code === 1) {
@@ -102,30 +103,10 @@ const getQueryReturnById = (id) => {
         }
     };
 };
-// // 获取员工职位人数
-// const getEmpJobData = () => {
-//     return async (dispatch) => {
-//         const res = await request.get('http://localhost:8080/report/empJobData');
-//         const code = res.data.code;
-//         if (code === 1) {
-//             dispatch(setEmpJobStats(res.data.data));
-//         }
-//     }
-// }
-// // 获取员工性别人数
-// const getEmpGenderData = () => {
-//     return async (dispatch) => {
-//         const res = await request.get('http://localhost:8080/report/empGenderData');
-//         const code = res.data.code;
-//         if (code === 1) {
-//             dispatch(setEmpGenderStats(res.data.data));
-//         }
-//     }
-// }
 // 查询所有班级
 const getAllClazz = () => {
     return async (dispatch) => {
-        const res = await request.get('/clazzs/list');
+        const res = await getAll();
         const code = res.data.code;
         if (code === 1) {
             dispatch(setAllClazz(res.data.data));
@@ -145,8 +126,6 @@ export {
     setQueryReturn,
     setResult,
     getAllClazz,
-    // getEmpJobData,
-    // getEmpGenderData,
 };
 
 export default reducer;
