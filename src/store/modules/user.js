@@ -25,6 +25,12 @@ const userReducer = createSlice({
         setResult(state, action) {
             state.result = action.payload;
         },
+        clearResult(state) {
+            state.result = {
+                code: null,
+                message: null
+            };
+        },
         clearUserInfo(state) {
             // 清除token 用户信息
             state.token = '';
@@ -34,7 +40,7 @@ const userReducer = createSlice({
     }
 });
 
-const { setToken, setUserInfo, setResult, clearUserInfo } = userReducer.actions;
+const { setToken, setUserInfo, setResult, clearUserInfo, clearResult } = userReducer.actions;
 
 const fetchLogin = (loginForm) => {
     return async (dispatch) => {
@@ -58,6 +64,6 @@ const fetchUserProfile = () => {
 
 const reducer = userReducer.reducer;
 
-export { fetchLogin, setResult, fetchUserProfile, clearUserInfo };
+export { fetchLogin, setResult, fetchUserProfile, clearUserInfo, clearResult };
 
 export default reducer;

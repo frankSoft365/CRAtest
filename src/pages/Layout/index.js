@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Modal } from 'antd';
+import { Layout, Menu, Modal, message } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
@@ -9,7 +9,7 @@ import {
     BarChartOutlined,
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserProfile, clearUserInfo } from '@/store/modules/user';
+import { fetchUserProfile, clearUserInfo, clearResult } from '@/store/modules/user';
 function getItem(label, key, icon, children) {
     return {
         key,
@@ -98,7 +98,7 @@ const layoutStyle = {
 
 const LayoutPage = () => {
     const [isModalOpenExitLogin, setIsModalOpenExitLogin] = useState(false);
-    const { userInfo } = useSelector(state => state.user);
+    const { userInfo, result } = useSelector(state => state.user);
     const [collapsed, setCollapsed] = useState(false);
     const [openKeys, setOpenKeys] = useState([]);
     const dispatch = useDispatch();
@@ -148,6 +148,18 @@ const LayoutPage = () => {
         navigate('/login');
     }
 
+    // 异常全局处理
+    const [messageApi, contextHolder] = message.useMessage();
+    useEffect(() => {
+        if (result.code !== null && result.message !== null) {
+            messageApi.open({
+                type: result.code === 1 ? 'success' : 'error',
+                content: result.message,
+                onClose: () => dispatch(clearResult()),
+            });
+        }
+    }, [result, messageApi, dispatch]);
+
     return (
         <Layout style={layoutStyle}>
             <Modal
@@ -159,6 +171,7 @@ const LayoutPage = () => {
             >
                 <p>确认要退出登录吗？</p>
             </Modal>
+            {contextHolder}
             <Header style={headerStyle}>
                 <span>Tlias智能学习辅助系统</span>
                 <span>

@@ -18,8 +18,6 @@ export default function Login() {
     useEffect(() => {
         if (result.code === 1) {
             navigate('/');
-            message.success('登录成功');
-            dispatch(setResult({ code: null, message: null })); // clear result
         }
     }, [result, navigate, dispatch]);
     // 异常全局处理
@@ -37,8 +35,9 @@ export default function Login() {
         <div className="login">
             {contextHolder}
             <Card className="login-container" >
-                <img className="login-logo" src={logo} alt="" />
+                <h1>Tlias智能学习辅助系统</h1>
                 <Form
+                    colon={false}
                     name="login"
                     initialValues={{ remember: true }}
                     style={{ maxWidth: 360 }}
@@ -46,6 +45,7 @@ export default function Login() {
                     validateTrigger='onBlur'
                 >
                     <Form.Item
+                        label='username'
                         name="username"
                         rules={[
                             {
@@ -54,10 +54,12 @@ export default function Login() {
                             }
                         ]}
                     >
-                        <Input prefix={<MobileOutlined />} placeholder="username" />
+                        <Input placeholder="username" />
                     </Form.Item>
                     <Form.Item
+                        label='password'
                         name="password"
+                        s
                         rules={[
                             {
                                 required: true,
@@ -65,7 +67,7 @@ export default function Login() {
                             }
                         ]}
                     >
-                        <Input prefix={<LockOutlined />} type="password" placeholder="Password" />
+                        <Input type="password" placeholder="Password" />
                     </Form.Item>
 
                     <Form.Item>

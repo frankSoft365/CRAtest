@@ -96,7 +96,6 @@ const getQueryReturnById = (id) => {
     return async (dispatch) => {
         console.log('发送查询回显请求！');
         const res = await getInfoById(id);
-        console.log('查询回显获取到班级信息：', res.data.data);
         const code = res.data.code;
         if (code === 1) {
             dispatch(setQueryReturn(res.data.data));
