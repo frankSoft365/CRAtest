@@ -1,6 +1,4 @@
 import { Form, Input, Button, Card, message } from "antd";
-import { LockOutlined, MobileOutlined } from '@ant-design/icons';
-import logo from '@/assets/maple_leaf.jpg';
 import './index.css'
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLogin, setResult } from "@/store/modules/user";

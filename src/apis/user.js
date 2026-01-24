@@ -9,7 +9,7 @@ export function loginAPI(formData) {
 }
 export function getProfileAPI() {
     return request({
-        url: '/user/profile',
+        url: '/emps/profile',
         method: 'GET',
     });
 }

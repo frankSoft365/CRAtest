@@ -9,6 +9,7 @@ import ClazzManagement from "@/pages/ClazzManagement";
 import StudentManagement from "@/pages/StudentManagement";
 import StuInfoStats from "@/pages/StuInfoStats";
 import { AuthRoute } from "@/components/AuthRoute";
+import LogInfoStats from "@/pages/LogInfoStats";
 
 const router = createBrowserRouter([
     {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
             {
                 path: '/stuInfoStats',
                 element: <StuInfoStats />
+            },
+            {
+                path: '/logInfoStats',
+                element: <LogInfoStats />
             },
         ]
     },

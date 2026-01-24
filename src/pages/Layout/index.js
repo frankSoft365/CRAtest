@@ -30,7 +30,8 @@ const items = [
     ]),
     getItem('数据统计管理', 'sub3', <BarChartOutlined />, [
         getItem('员工信息统计', '6'),
-        getItem('学员信息统计', '7')
+        getItem('学员信息统计', '7'),
+        getItem('日志信息统计', '8'),
     ]),
 ];
 
@@ -42,6 +43,7 @@ const keyToPath = {
     '5': '/empManagement',
     '6': '/empInfoStats',
     '7': '/stuInfoStats',
+    '8': '/logInfoStats',
 };
 
 const keyToParent = {
@@ -51,6 +53,7 @@ const keyToParent = {
     '5': 'sub2',
     '6': 'sub3',
     '7': 'sub3',
+    '8': 'sub3',
 };
 
 // Map route paths to menu keys

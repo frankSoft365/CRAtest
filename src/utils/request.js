@@ -1,7 +1,6 @@
 import axios from "axios";
 import { getToken, removeToken } from "./token";
 import router from "@/router";
-import { setResult } from "@/store/modules/user";
 
 const request = axios.create({
     baseURL: 'http://localhost:8080',
@@ -32,9 +31,9 @@ request.interceptors.response.use(function onFulfilled(response) {
     // 拦截401 token失效跳转登录避免红屏
     if (error.response.status === 401) {
         removeToken();
+        router.navigate('/login');
         // 弹出提示：登录状态失效，请重新登录！
         window.alert('登录状态失效，请重新登录！');
-        router.navigate('/login');
         window.location.reload();
     }
 

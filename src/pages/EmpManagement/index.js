@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { request } from '@/utils/request';
 import { Button, Card, Input, Space, Table, Flex, Form, Modal, InputNumber, DatePicker, Select, Upload, message } from 'antd';
 import dayjs from 'dayjs';
 import { LoadingOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
@@ -543,7 +544,20 @@ const EmpManagement = () => {
                             listType="picture-card"
                             className="avatar-uploader"
                             showUploadList={false}
-                            action="http://localhost:8080/upload"
+                            customRequest={async ({ file, onSuccess, onError }) => {
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                try {
+                                    const res = await request.post('/upload', formData, {
+                                        headers: {
+                                            'Content-Type': 'multipart/form-data',
+                                        },
+                                    });
+                                    onSuccess(res.data);
+                                } catch (err) {
+                                    onError(err);
+                                }
+                            }}
                             beforeUpload={beforeUpload}
                             onChange={handleChange}
                         >
