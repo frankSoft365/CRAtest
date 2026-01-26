@@ -1,10 +1,6 @@
-# Getting Started with Create React App
+# Tilas system front end based on React framework
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
-In the project directory, you can run:
+Using CRA to init the project and npm to import dependencies. The components are from AntDesign.
 
 ### `npm start`
 
